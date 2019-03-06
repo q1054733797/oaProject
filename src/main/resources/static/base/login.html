@@ -1,0 +1,198 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>登录页面</title>
+		<script src="../miniui/scripts/boot.js"></script>
+		<script src="../miniui/scripts/core.js"></script>
+	</head>
+
+	<body style="background-image: url(img/background.jpg);">
+		<div id="skin" style="right:12px;bottom:8px;font-size:12px;line-height:25px;font-weight:normal;">
+		        皮肤：
+		        <select id="selectSkin" onchange="onSkinChange(this.value)" style="width:100px;margin-right:10px;" >
+		            <optgroup label="传统风格">
+		                <option value="default">default</option>
+		                <option value="blue">blue</option>
+		                <option value="pure">pure</option>
+		                <option value="gray">gray</option>                
+		                <option value="olive2003">olive2003</option>
+		                <option value="blue2003" >blue2003</option>
+		                <option value="blue2010" >blue2010</option>
+		                <option value="bootstrap">bootstrap</option>   
+		                <option value="jqueryui-cupertino">jqueryui-cupertino</option>
+		                <option value="jqueryui-smoothness">jqueryui-smoothness</option>                                     
+		            </optgroup>
+		            <optgroup label="扁平风格">
+		                <option value="cupertino" selected>cupertino</option>
+		                <option value="metro-white" >metro-white</option>
+		                <option value="metro-green">metro-green</option>
+		                <option value="metro-orange">metro-orange</option>
+		                <option value="metro-gray">metro-gray</option>
+		                <option value="metro-blue">metro-blue</option>                    
+		            </optgroup>
+		        </select>
+		        尺寸：
+		        <select id="selectMode" onchange="onModeChange(this.value)" style="width:100px;" >
+		            <option value="default">Default</option>
+		            <option value="medium" selected >Medium</option>
+		            <option value="large">Large</option>                
+		        </select>
+		    </div>
+		</div>
+		<div id="loginWindow" class="mini-window" title="用户登录" style="width:500px;height:200px;border-radius: 20px;" 
+		   showModal="false" showCloseButton="false" allowDrag="false" 
+		    >
+		
+		    <div id="loginForm" style="padding-left:90px;padding-top:10px;">
+		        <table>
+		            <tr>
+		                <th style="width:60px;">
+							<i class="fa fa-user fa-lg"></i><span>用户名:</span>
+						</th>
+		                <td>
+		                    <input id="username" name="username" onvalidation="onUserNameValidation" class="mini-textbox" required="true" style="width:200px;"/>
+		                </td>    
+		            </tr>
+		            <tr>
+		                <th style="width:60px;">
+		                	<i class="fa fa-unlock-alt fa-lg"></i><span>密码:</span>
+		                </th>
+		                <td>
+		                    <input id="pwd" name="password" onvalidation="onPwdValidation" class="mini-password" requiredErrorText="密码不能为空" required="true" style="width:200px;" onenter="onLoginClick"/>
+		                </td>
+		            </tr>
+					<tr>
+						<td>
+							
+						</td>
+						<td>
+							<a style="cursor: pointer;color: blue;" onclick="register()">注册账号</a>
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<a style="cursor: pointer;color: blue;" onclick="forgetPwd()">忘记密码?</a>
+						</td>
+					</tr>
+		            <tr>
+		                <td></td>
+		                <td style="padding-top:5px;">
+		                    <a onclick="onLoginClick" class="mini-button" style="width:70px;"><i class="fa fa-sign-in">登录</i></a>
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		                    <a onclick="onResetClick" class="mini-button" style="width:70px;"><i class="fa fa-repeat">重置</i></a>
+		                </td>
+		            </tr>
+		        </table>
+		    </div>
+		
+		</div>
+		
+		<script type="text/javascript">
+			mini.parse();
+			
+			var loginWindow = mini.get("loginWindow");
+			loginWindow.show();
+			
+			function onLoginClick(e) {
+			    var form = new mini.Form("#loginWindow");
+			
+			    form.validate();
+			    if (form.isValid() == true){
+			        var data = form.getData(true,true);
+                    if (checkUser(data)){
+                        loginWindow.hide();
+                        mini.loading("登录成功，马上转到系统...", "登录成功");
+                        setTimeout(function () {
+                            window.location = "index.html";
+                        }, 1500);
+					}
+				}
+			}
+
+			function checkUser(data) {
+			    var message = null;
+			    var isOk = false;
+				$.ajax({
+					url:"/login",
+					type:"post",
+					data:data,
+					async:false,
+					success:function (text) {
+						message = text;
+                    }
+				});
+				if ("ok" == message){
+                    isOk = true;
+				} else{
+				    var pwd = mini.get("pwd");
+                    pwd.errorText = message;
+                    pwd.setIsValid(false);
+				}
+				return isOk;
+            }
+
+			function onResetClick(e) {
+			    var form = new mini.Form("#loginWindow");
+			    form.clear();
+			}
+			
+			function register(){
+				mini.open({
+					url:"register.html",
+					title:"注册账号",
+					widht:500,
+					height:500,
+					onload:function(){
+						alert(123)
+					},
+					ondestroy:function(){
+						alert(456)
+					}
+				});
+			}
+			
+			function forgetPwd(){
+				mini.open({
+					url:"register.html",
+					title:"注册账号",
+					widht:500,
+					height:500,
+					onload:function(){
+						alert(123)
+					},
+					ondestroy:function(){
+						alert(456)
+					}
+				});
+			}
+			
+			/////////////////////////////////////
+			function isEmail(s) {
+			    if (s.search(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/) != -1){
+					return true;
+				}else{
+					return false;
+				}
+			        
+			}
+			
+			function onUserNameValidation(e) {
+			    if (e.isValid) {
+			        if (isEmail(e.value) == false) {
+			            e.errorText = "必须输入邮件地址";
+			            e.isValid = false;
+			        }
+			    }
+			}
+			
+			function onPwdValidation(e) {
+			    if (e.isValid) {
+			        if (e.value.length < 6) {
+			            e.errorText = "密码不能少于6个字符";
+			            e.isValid = false;
+			        }
+			    }
+			}
+		</script>
+	</body>
+
+</html>
