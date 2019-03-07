@@ -38,13 +38,18 @@
             <tr>
                 <th style="width:120px;text-align: right;">是否为叶子菜单：</th>
                 <td>
-                    <input name="isLeaf" class="mini-combobox" textField="text" valueField="id" style="width:100%;"
-                           value="n" allowInput="false" data="[{id: 'y', text: '是'}, {id: 'n', text: '否'}]" />
+                    <input name="leaf" class="mini-combobox" textField="text" valueField="id" style="width:100%;"
+                           value="y" allowInput="false" data="[{id: 'y', text: '是'}, {id: 'n', text: '否'}]" />
                 </td>
                 <th style="width:120px;text-align: right;">功能资源：</th>
                 <td>
-                    <input id="btnEdit1" class="mini-buttonedit" emptyText="请选择..."  onbuttonclick="onButtonEdit"
-                           allowInput="false" style="width:100%;" />
+                    <input name="url" class="mini-textbox" style="width:100%;" />
+                </td>
+            </tr>
+            <tr>
+                <th style="width:120px;text-align: right;">菜单图标：</th>
+                <td colspan="3">
+                    <input name="iconCls" class="mini-textbox" emptyText="请参照网站‘http://fontawesome.dashgame.com/’输入" style="width:100%;"/>
                 </td>
             </tr>
         </table>

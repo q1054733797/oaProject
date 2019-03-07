@@ -23,7 +23,7 @@ public interface MenuMapper {
             @Result(column = "code",property = "code"),
             @Result(column = "text",property = "text"),
             @Result(column = "sort",property = "sort"),
-            @Result(column = "isLeaf",property = "isLeaf"),
+            @Result(column = "leaf",property = "leaf"),
             @Result(column = "url",property = "url"),
             @Result(column = "iconCls",property = "iconCls"),
             @Result(column = "id",property = "children",many = @Many(
@@ -37,7 +37,7 @@ public interface MenuMapper {
             "code = #{code}," +
             "text = #{text}," +
             "sort = #{sort}," +
-            "isLeaf = #{isLeaf}," +
+            "leaf = #{leaf}," +
             "parentId = #{parentId}," +
             "url = #{url}," +
             "iconCls = #{iconCls}," +
@@ -45,8 +45,8 @@ public interface MenuMapper {
             "where id = #{id}")
     int updateMenu(Menu menu);
 
-    @Insert("insert into t_menu(name,code,text,sort,isLeaf,parentId,url,iconCls,level) " +
-            "values(#{name},#{code},#{text},#{sort},#{isLeaf},#{parentId},#{url},#{iconCls},#{level})")
+    @Insert("insert into t_menu(name,code,text,sort,leaf,parentId,url,iconCls,level) " +
+            "values(#{name},#{code},#{text},#{sort},#{leaf},#{parentId},#{url},#{iconCls},#{level})")
     int addMenu(Menu menu);
 
     @Select("select * from t_menu where parentId is null")
@@ -56,7 +56,7 @@ public interface MenuMapper {
             @Result(column = "code",property = "code"),
             @Result(column = "text",property = "text"),
             @Result(column = "sort",property = "sort"),
-            @Result(column = "isLeaf",property = "isLeaf"),
+            @Result(column = "leaf",property = "leaf"),
             @Result(column = "url",property = "url"),
             @Result(column = "iconCls",property = "iconCls"),
             @Result(column = "id",property = "children",many = @Many(
@@ -72,7 +72,7 @@ public interface MenuMapper {
             @Result(column = "code",property = "code"),
             @Result(column = "text",property = "text"),
             @Result(column = "sort",property = "sort"),
-            @Result(column = "isLeaf",property = "isLeaf"),
+            @Result(column = "leaf",property = "leaf"),
             @Result(column = "url",property = "url"),
             @Result(column = "iconCls",property = "iconCls"),
             @Result(column = "id",property = "children",many = @Many(

@@ -14,7 +14,7 @@ public class Menu {
     private String code;
     private String text;
     private String sort;
-    private String isLeaf;
+    private String leaf;
     private String parentId;
     private String url;
     private String iconCls;
@@ -65,12 +65,12 @@ public class Menu {
         this.sort = sort;
     }
 
-    public String getIsLeaf() {
-        return isLeaf;
+    public String getLeaf() {
+        return leaf;
     }
 
-    public void setIsLeaf(String isLeaf) {
-        this.isLeaf = isLeaf;
+    public void setLeaf(String leaf) {
+        this.leaf = leaf;
     }
 
     public String getParentId() {

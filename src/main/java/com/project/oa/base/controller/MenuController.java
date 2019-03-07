@@ -86,7 +86,6 @@ public class MenuController {
     private void processMenu(List<Menu> list){
         for (Menu menu : list) {
             List<Menu> children = menu.getChildren();
-            menu.setIsLeaf(null);
             if(children == null || children.size() == 0){
                 menu.setChildren(null);
             }else{
