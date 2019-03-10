@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>下属机构</title>
+    <script src="../../miniui/scripts/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        html, body{
+            margin:0;padding:0;border:0;width:100%;height:100%;overflow:hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="form">
+        <table border="0" cellpadding="1" cellspacing="2" style="width:100%;table-layout:fixed;">
+            <tr>
+                <th style="width: 80px;text-align: right;">机构代码:</th>
+                <td>
+                    <input name="code" class="mini-textbox"/>
+                </td>
+                <th style="width: 80px;text-align: right;">机构名称:</th>
+                <td>
+                    <input name="name" class="mini-textbox"/>
+                </td>
+                <td>
+                    <a class="mini-button" iconCls="icon-search" onclick="search">查询</a>
+                    <a class="mini-button" iconCls="icon-reload" onclick="reset">重置</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mini-toolbar">
+        <a class="mini-button" iconCls="icon-add" onclick="add">添加机构</a>
+        <a id="edit" class="mini-button" iconCls="icon-edit" onclick="edit">修改机构</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="remove">删除机构</a>
+    </div>
+    <div class="mini-fit">
+        <div id="grid" class="mini-datagrid" style="width:100%;height:100%;"
+             url="/getChildrenOrg"  idField="id" onselectionchanged="onselectionchanged"
+             multiSelect="true">
+            <div property="columns">
+                <div type="checkColumn" width="5%"></div>
+                <div field="code" width="30%" align="center" headerAlign="center" >类型代码</div>
+                <div field="name" width="60%" align="center" headerAlign="center" >类型名称</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+
+        var form = new mini.Form("form");
+        var grid = mini.get("grid");
+
+        function setData(data) {
+            data = mini.clone(data);
+            alert(data.id);
+        }
+
+        function deleteDict() {
+            var rows = dictGrid.getSelecteds();
+            if (rows.length > 0){
+                mini.confirm("确定要删除这些数据吗,将级联删除字典项？","系统提示",function (action) {
+                    if ("ok" == action){
+                        var data = mini.encode(rows);
+                        $.ajax({
+                            url:"/deleteDict",
+                            type:"post",
+                            data:data,
+                            contentType:"application/json;charset=utf-8",
+                            async:false,
+                            success:function (text) {
+                                if ("ok" == text){
+                                    mini.alert("删除成功","系统提示",function (action) {
+                                        if ("ok" == action){
+                                            dictGrid.reload();
+                                        }
+                                    });
+                                } else{
+                                    mini.alert("删除失败");
+                                }
+                            }
+                        });
+                    }
+                });
+            } else{
+                mini.alert("请至少选择一条数据");
+            }
+        }
+
+        function editDict() {
+            var row = dictGrid.getSelected();
+            if (row){
+                mini.open({
+                    url:"/base/dictManage/updateDict.html",
+                    title:"修改业务字典",
+                    width:500,
+                    height:200,
+                    onload:function () {
+                        var frame = this.getIFrameEl();
+                        row.type = "dict";
+                        frame.contentWindow.setData(row);
+                    },
+                    ondestroy:function (action) {
+                        if ("ok" == action){
+                            dictGrid.reload();
+                        }
+                    }
+                });
+            } else{
+                mini.alert("请选择一条数据");
+            }
+        }
+
+        function addDict() {
+            mini.open({
+                url:"/base/dictManage/addDict.html",
+                title:"添加业务字典",
+                width:500,
+                height:200,
+                onload:function () {
+                    var frame = this.getIFrameEl();
+                    var data = dictGrid.getSelected();
+                    data.type = "dict";
+                    frame.contentWindow.setData(data);
+                },
+                ondestroy:function (action) {
+                    if ("ok" == action){
+                        dictGrid.reload();
+                    }
+                }
+            });
+        }
+
+        function onselectionchanged() {
+            var rows = grid.getSelecteds();
+            if (rows.length > 1){
+                mini.get("edit").disable();
+            } else{
+                mini.get("edit").enable();
+            }
+        }
+        function reset() {
+            form.reset();
+        }
+
+        function search() {
+            var data = form.getData(true,true);
+            dictGrid.load(data);
+        }
+    </script>
+</body>
+</html>
