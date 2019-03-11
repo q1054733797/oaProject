@@ -21,6 +21,17 @@ public class DictItemController {
     @Autowired
     private IDictItemService dictItemService;
 
+    @RequestMapping("getDictItemText")
+    @ResponseBody
+    public String getDictItemText(String dictCode, String dictItemCode){
+        String name = null;
+        if(dictCode != null && dictItemCode != null){
+            DictItem dictItem = dictItemService.getDictItemByDictCodeAndDictItemCode(dictCode, dictItemCode);
+            name = dictItem.getName();
+        }
+        return name;
+    }
+
     @RequestMapping("deleteDictItem")
     @ResponseBody
     public String deleteDictItem(@RequestBody List<DictItem> dictItems){

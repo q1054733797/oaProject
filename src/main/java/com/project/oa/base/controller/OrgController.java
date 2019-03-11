@@ -1,8 +1,10 @@
 package com.project.oa.base.controller;
 
+import com.project.oa.base.bean.Org;
 import com.project.oa.base.service.IOrgService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -19,9 +21,74 @@ public class OrgController {
     @Autowired
     private IOrgService orgService;
 
+    @RequestMapping("getOrgById")
+    @ResponseBody
+    public Org getOrgById(Integer id){
+        Org org = null;
+        if(id != null){
+            org = orgService.getOrgById(String.valueOf(id));
+        }
+        return org;
+    }
+
+    @RequestMapping("deleteOrg")
+    @ResponseBody
+    public String deleteOrg(@RequestBody List<Org> orgs){
+        String result = "ok";
+        try {
+            deleteOrgs(orgs);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            result = "fail";
+        }
+        return result;
+    }
+
+    @RequestMapping("updateOrg")
+    @ResponseBody
+    public String updateOrg(Org org){
+        String result = "fail";
+        try {
+            if(orgService.updateOrg(org) > 0){
+                result = "ok";
+            }
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            result = "fail";
+        }
+        return result;
+    }
+
+    @RequestMapping("addOrg")
+    @ResponseBody
+    public String addOrg(Org org){
+        String result = "ok";
+        try {
+            orgService.addOrg(org);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            result = "fail";
+        }
+        return result;
+    }
+
+    @RequestMapping("getChildOrg")
+    @ResponseBody
+    public List getChildren(int id){
+        return orgService.getChildOrg(id);
+    }
+
     @RequestMapping("getOrgAndUserTree")
     @ResponseBody
     public List getOrgAndUserTree(){
         return orgService.getOrgAndUserTree();
+    }
+
+    private void deleteOrgs(List<Org> orgs){
+        for (Org org : orgs) {
+            orgService.deleteOrg(org);
+            List<Org> childOrg = orgService.getChildOrg(Integer.parseInt(org.getId()));
+            deleteOrg(childOrg);
+        }
     }
 }

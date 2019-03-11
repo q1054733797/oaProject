@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>机构信息</title>
+    <title>添加机构</title>
     <script src="../../miniui/scripts/boot.js" type="text/javascript"></script>
     <style type="text/css">
         html, body{
@@ -13,7 +13,6 @@
 <body>
     <div id="form">
         <input id="parentOrgId" name="parentId" class="mini-hidden"/>
-        <input name="id" class="mini-hidden"/>
         <table border="0" cellpadding="1" cellspacing="2" style="width:100%;table-layout:fixed;">
             <tr>
                 <th style="width:120px;text-align: right;">机构名称：</th>
@@ -28,12 +27,12 @@
             <tr>
                 <th style="width:120px;text-align: right;">上级机构：</th>
                 <td>
-                    <input name="parentOrgName" class="mini-textbox" style="width:100%;" allowInput="false"/>
+                    <input id="parentOrgName" class="mini-textbox" style="width:100%;" allowInput="false"/>
                 </td>
                 <th style="width:120px;text-align: right;">机构类型：</th>
                 <td>
                     <input name="type" class="mini-combobox" textField="name" valueField="code" emptyText="请选择..."
-                           url="/getDictItem?dict_code=orgType" allowInput="false" style="width:100%;" required="true"/>
+                        url="/getDictItem?dict_code=orgType" allowInput="false" style="width:100%;" required="true"/>
                 </td>
             </tr>
             <tr>
@@ -81,7 +80,8 @@
             </tr>
         </table>
         <div style="text-align:center;padding:10px;">
-            <a class="mini-button" iconCls="icon-save" onclick="onOk" style="width:80px;">确定</a>
+            <a class="mini-button" iconCls="icon-save" onclick="onOk" style="width:80px;margin-right:20px;">确定</a>
+            <a class="mini-button" iconCls="icon-cancel" onclick="onCancel" style="width:80px;">取消</a>
         </div>
     </div>
 
@@ -89,21 +89,28 @@
         mini.parse();
 
         var form = new mini.Form("form");
-        var orgInfo = null;
 
         function saveData() {
             if (form.validate() == true){
                 var data = form.getData(true,true);
                 $.ajax({
-                    url:"/updateOrg",
+                    url:"/addOrg",
                     type:"post",
                     data:data,
                     async:false,
                     success:function (text) {
                         if ("ok" == text){
-                            mini.alert("修改成功");
+                            mini.alert("添加成功","系统提示",function (action) {
+                                if ("ok" == action){
+                                    CloseWindow("ok");
+                                }
+                            });
                         } else{
-                            mini.alert("修改失败");
+                            mini.alert("添加失败","系统提示",function (action) {
+                                if ("ok" == action){
+                                    CloseWindow("fail");
+                                }
+                            });
                         }
                     }
                 });
@@ -112,26 +119,24 @@
 
         function setData(data) {
             data = mini.clone(data);
-            orgInfo = data;
-            setFormData(orgInfo);
+            mini.get("parentOrgId").setValue(data.orgId);
+            mini.get("parentOrgName").setValue(data.name);
         }
 
-        function setFormData(orgInfo) {
-            var data = orgInfo;
-            $.ajax({
-                url:"/getOrgById",
-                type:"post",
-                data:{id:data.orgId},
-                async:false,
-                success:function (text) {
-                    data = jQuery.extend(data,text);
-                }
-            });
-            form.setData(data);
+        function CloseWindow(action) {
+            if (window.CloseOwnerWindow){
+                return window.CloseOwnerWindow(action);
+            } else {
+                window.close();
+            }
         }
 
         function onOk(e) {
             saveData();
+        }
+
+        function onCancel(e) {
+            CloseWindow("cancel");
         }
     </script>
 </body>

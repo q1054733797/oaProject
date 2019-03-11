@@ -1,6 +1,7 @@
 package com.project.oa.base.service.serviceImpl;
 
 import com.project.oa.base.bean.Dict;
+import com.project.oa.base.bean.DictItem;
 import com.project.oa.base.mapper.DictMapper;
 import com.project.oa.base.service.IDictService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,6 @@
 package com.project.oa.base.service.serviceImpl;
 
+import com.project.oa.base.bean.Org;
 import com.project.oa.base.bean.OrgAndUserTree;
 import com.project.oa.base.mapper.OrgMapper;
 import com.project.oa.base.service.IOrgService;
@@ -20,6 +21,31 @@ import java.util.List;
 public class OrgServiceImpl implements IOrgService {
     @Autowired
     private OrgMapper orgMapper;
+
+    @Override
+    public Org getOrgById(String id) {
+        return orgMapper.getOrgById(id);
+    }
+
+    @Override
+    public int updateOrg(Org org) {
+        return orgMapper.updateOrg(org);
+    }
+
+    @Override
+    public int deleteOrg(Org org) {
+        return orgMapper.deleteOrg(org);
+    }
+
+    @Override
+    public int addOrg(Org org) {
+        return orgMapper.addOrg(org);
+    }
+
+    @Override
+    public List<Org> getChildOrg(int id) {
+        return orgMapper.getChildOrg(id);
+    }
 
     @Override
     public List<OrgAndUserTree> getOrgAndUserTree() {

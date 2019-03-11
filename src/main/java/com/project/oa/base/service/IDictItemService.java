@@ -16,4 +16,5 @@ public interface IDictItemService {
     int updateDictItem(DictItem dictItem);
     int deleteDictItem(DictItem dictItem);
     List<DictItem> getDictItemByDictCode(String dict_code);
+    DictItem getDictItemByDictCodeAndDictItemCode(String dictCode,String dictItemCode);
 }

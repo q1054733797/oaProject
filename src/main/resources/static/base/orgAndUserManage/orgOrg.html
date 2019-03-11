@@ -36,12 +36,14 @@
     </div>
     <div class="mini-fit">
         <div id="grid" class="mini-datagrid" style="width:100%;height:100%;"
-             url="/getChildrenOrg"  idField="id" onselectionchanged="onselectionchanged"
+             url="/getChildOrg"  idField="id" onselectionchanged="onselectionchanged"
              multiSelect="true">
             <div property="columns">
-                <div type="checkColumn" width="5%"></div>
-                <div field="code" width="30%" align="center" headerAlign="center" >类型代码</div>
-                <div field="name" width="60%" align="center" headerAlign="center" >类型名称</div>
+                <div type="checkColumn"></div>
+                <div field="name" align="center" headerAlign="center" >机构名称</div>
+                <div field="code" align="center" headerAlign="center" >机构代码</div>
+                <div field="type" align="center" headerAlign="center" renderer="getOrgType">机构类型</div>
+                <div field="remark" align="center" headerAlign="center" >备注</div>
             </div>
         </div>
     </div>
@@ -51,19 +53,22 @@
         var form = new mini.Form("form");
         var grid = mini.get("grid");
 
+        var parentOrg = null;
+
         function setData(data) {
             data = mini.clone(data);
-            alert(data.id);
+            parentOrg = data;
+            grid.load({id:data.orgId});
         }
 
-        function deleteDict() {
-            var rows = dictGrid.getSelecteds();
+        function remove() {
+            var rows = grid.getSelecteds();
             if (rows.length > 0){
-                mini.confirm("确定要删除这些数据吗,将级联删除字典项？","系统提示",function (action) {
+                mini.confirm("确定要删除这些机构吗,将级联删除下属机构及人员信息？","系统提示",function (action) {
                     if ("ok" == action){
                         var data = mini.encode(rows);
                         $.ajax({
-                            url:"/deleteDict",
+                            url:"/deleteOrg",
                             type:"post",
                             data:data,
                             contentType:"application/json;charset=utf-8",
@@ -72,7 +77,7 @@
                                 if ("ok" == text){
                                     mini.alert("删除成功","系统提示",function (action) {
                                         if ("ok" == action){
-                                            dictGrid.reload();
+                                            grid.reload();
                                         }
                                     });
                                 } else{
@@ -87,22 +92,22 @@
             }
         }
 
-        function editDict() {
-            var row = dictGrid.getSelected();
+        function edit() {
+            var row = grid.getSelected();
             if (row){
                 mini.open({
-                    url:"/base/dictManage/updateDict.html",
-                    title:"修改业务字典",
-                    width:500,
-                    height:200,
+                    url:"/base/orgAndUserManage/updateOrg.html",
+                    title:"修改机构",
+                    width:800,
+                    height:320,
                     onload:function () {
                         var frame = this.getIFrameEl();
-                        row.type = "dict";
+                        row.parentOrgName = parentOrg.name;
                         frame.contentWindow.setData(row);
                     },
                     ondestroy:function (action) {
                         if ("ok" == action){
-                            dictGrid.reload();
+                            grid.reload();
                         }
                     }
                 });
@@ -111,24 +116,38 @@
             }
         }
 
-        function addDict() {
+        function add() {
             mini.open({
-                url:"/base/dictManage/addDict.html",
-                title:"添加业务字典",
-                width:500,
-                height:200,
+                url:"/base/orgAndUserManage/addOrg.html",
+                title:"添加机构",
+                width:800,
+                height:320,
                 onload:function () {
                     var frame = this.getIFrameEl();
-                    var data = dictGrid.getSelected();
-                    data.type = "dict";
-                    frame.contentWindow.setData(data);
+                    frame.contentWindow.setData(parentOrg);
                 },
                 ondestroy:function (action) {
                     if ("ok" == action){
-                        dictGrid.reload();
+                        grid.reload();
                     }
                 }
             });
+        }
+
+        function getOrgType(e) {
+            var orgType = String(e.value);
+            $.ajax({
+                url:"/getDictItemText",
+                type:"post",
+                data:{dictCode:"orgType",dictItemCode:orgType},
+                async:false,
+                success:function (text) {
+                    if (null != text){
+                        orgType = text;
+                    }
+                }
+            });
+            return orgType;
         }
 
         function onselectionchanged() {
@@ -145,7 +164,7 @@
 
         function search() {
             var data = form.getData(true,true);
-            dictGrid.load(data);
+            grid.load(data);
         }
     </script>
 </body>

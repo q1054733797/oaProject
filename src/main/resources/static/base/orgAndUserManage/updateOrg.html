@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>机构信息</title>
+    <title>修改机构</title>
     <script src="../../miniui/scripts/boot.js" type="text/javascript"></script>
     <style type="text/css">
         html, body{
@@ -81,7 +81,8 @@
             </tr>
         </table>
         <div style="text-align:center;padding:10px;">
-            <a class="mini-button" iconCls="icon-save" onclick="onOk" style="width:80px;">确定</a>
+            <a class="mini-button" iconCls="icon-save" onclick="onOk" style="width:80px;margin-right:20px;">确定</a>
+            <a class="mini-button" iconCls="icon-cancel" onclick="onCancel" style="width:80px;">取消</a>
         </div>
     </div>
 
@@ -89,7 +90,6 @@
         mini.parse();
 
         var form = new mini.Form("form");
-        var orgInfo = null;
 
         function saveData() {
             if (form.validate() == true){
@@ -101,9 +101,17 @@
                     async:false,
                     success:function (text) {
                         if ("ok" == text){
-                            mini.alert("修改成功");
+                            mini.alert("修改成功","系统提示",function (action) {
+                                if ("ok" == action){
+                                    CloseWindow("ok");
+                                }
+                            });
                         } else{
-                            mini.alert("修改失败");
+                            mini.alert("修改失败","系统提示",function (action) {
+                                if ("ok" == action){
+                                    CloseWindow("fail");
+                                }
+                            });
                         }
                     }
                 });
@@ -112,26 +120,23 @@
 
         function setData(data) {
             data = mini.clone(data);
-            orgInfo = data;
-            setFormData(orgInfo);
+            form.setData(data);
         }
 
-        function setFormData(orgInfo) {
-            var data = orgInfo;
-            $.ajax({
-                url:"/getOrgById",
-                type:"post",
-                data:{id:data.orgId},
-                async:false,
-                success:function (text) {
-                    data = jQuery.extend(data,text);
-                }
-            });
-            form.setData(data);
+        function CloseWindow(action) {
+            if (window.CloseOwnerWindow){
+                return window.CloseOwnerWindow(action);
+            } else {
+                window.close();
+            }
         }
 
         function onOk(e) {
             saveData();
+        }
+
+        function onCancel(e) {
+            CloseWindow("cancel");
         }
     </script>
 </body>

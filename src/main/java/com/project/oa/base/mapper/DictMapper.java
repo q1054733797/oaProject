@@ -1,6 +1,7 @@
 package com.project.oa.base.mapper;
 
 import com.project.oa.base.bean.Dict;
+import com.project.oa.base.bean.DictItem;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.jdbc.SQL;
 

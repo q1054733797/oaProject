@@ -13,6 +13,9 @@ import java.util.List;
  */
 @Mapper
 public interface DictItemMapper {
+    @Select("select * from t_dict_item where dict_code = #{dictCode} and code = #{dictItemCode}")
+    DictItem getDictItemByDictCodeAndDictItemCode(@Param("dictCode") String dictCode,@Param("dictItemCode") String dictItemCode);
+
     @Select("select * from t_dict_item where dict_code = #{dict_code}")
     List<DictItem> getDictItemByDictCode(String dict_code);
 

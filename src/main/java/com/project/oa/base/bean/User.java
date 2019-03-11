@@ -17,7 +17,7 @@ public class User {
     private String status;
     private Date birthday;
     private String cardType;
-    private String cordCode;
+    private String cardCode;
     private Date inDate;
     private Date outDate;
     private String phone;
@@ -91,12 +91,12 @@ public class User {
         this.cardType = cardType;
     }
 
-    public String getCordCode() {
-        return cordCode;
+    public String getCardCode() {
+        return cardCode;
     }
 
-    public void setCordCode(String cordCode) {
-        this.cordCode = cordCode;
+    public void setCardCode(String cardCode) {
+        this.cardCode = cardCode;
     }
 
     public Date getInDate() {

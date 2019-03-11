@@ -23,6 +23,11 @@ public class DictItemServiceImpl implements IDictItemService {
     private DictItemMapper dictItemMapper;
 
     @Override
+    public DictItem getDictItemByDictCodeAndDictItemCode(String dictCode, String dictItemCode) {
+        return dictItemMapper.getDictItemByDictCodeAndDictItemCode(dictCode,dictItemCode );
+    }
+
+    @Override
     public List<DictItem> getDictItemByDictCode(String dict_code) {
         return dictItemMapper.getDictItemByDictCode(dict_code);
     }
