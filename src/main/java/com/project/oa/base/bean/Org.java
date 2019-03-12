@@ -20,9 +20,18 @@ public class Org {
     private String webUrl;
     private String remark;
     private String linkman;
+    private String iconCls;
 
     public Org(){
 
+    }
+
+    public String getIconCls() {
+        return iconCls;
+    }
+
+    public void setIconCls(String iconCls) {
+        this.iconCls = iconCls;
     }
 
     public String getId() {

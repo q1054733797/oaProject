@@ -164,6 +164,7 @@
 
         function search() {
             var data = form.getData(true,true);
+            data.id = parentOrg.orgId;
             grid.load(data);
         }
     </script>

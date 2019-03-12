@@ -22,12 +22,37 @@ public class UserServiceImpl implements IUserService {
     private UserMapper userMapper;
 
     @Override
+    public List<User> getUser(User user) {
+        return userMapper.getUser(user);
+    }
+
+    @Override
+    public int deleteUserByOrgId(int orgId) {
+        return userMapper.deleteUserByOrgId(orgId);
+    }
+
+    @Override
+    public User getUserById(int id) {
+        return userMapper.getUserById(id);
+    }
+
+    @Override
+    public int updateUser(User user) {
+        return userMapper.updateUser(user);
+    }
+
+    @Override
+    public int deleteUser(User user) {
+        return userMapper.deleteUser(user);
+    }
+
+    @Override
     public int addUser(User user) {
         return userMapper.addUser(user);
     }
 
     @Override
-    public List<User> getUserByOrgId(String orgId) {
-        return userMapper.getUserByOrgId(orgId);
+    public List<User> getUserByOrgId(User user) {
+        return userMapper.getUserByOrgId(user);
     }
 }

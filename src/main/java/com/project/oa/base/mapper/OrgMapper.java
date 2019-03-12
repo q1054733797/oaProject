@@ -2,10 +2,8 @@ package com.project.oa.base.mapper;
 
 import com.project.oa.base.bean.Org;
 import com.project.oa.base.bean.OrgAndUserTree;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.jdbc.SQL;
 
 import java.util.List;
 
@@ -16,6 +14,9 @@ import java.util.List;
  * @Version: 1.0
  */
 public interface OrgMapper {
+    @SelectProvider(type = OrgProvider.class,method = "getOrg")
+    List<Org> getOrg(Org org);
+
     @Select("select * from t_org where id = #{id}")
     Org getOrgById(String id);
 
@@ -42,11 +43,47 @@ public interface OrgMapper {
             "values(#{name},#{code},#{orgLevel},#{type},#{address},#{parentId},#{phone},#{postCode},#{email},#{webUrl},#{remark},#{linkman})")
     int addOrg(Org org);
 
-    @Select("select * from t_org where parentId = #{id}")
-    List<Org> getChildOrg(int id);
+    @SelectProvider(type = OrgProvider.class,method = "getChildOrg")
+    List<Org> getChildOrg(Org org);
 
     @Select("select id orgId,name,null userId,parentId,iconCls from t_org " +
             "union " +
             "select null orgId,a.name,a.id userId,a.orgId parentId,a.iconCls from t_user a join t_org b on a.orgId = b.id")
     List<OrgAndUserTree> getOrgAndUserTree();
+
+    class OrgProvider{
+        public String getChildOrg(Org org){
+            SQL sql = new SQL();
+            sql.FROM("t_org");
+            sql.SELECT("*");
+            sql.WHERE("parentId = #{id}");
+            if(org.getCode() != null && org.getCode() != ""){
+                sql.WHERE("code = #{code}");
+            }
+            if(org.getName() != null && org.getName() != ""){
+                sql.WHERE("name like concat('%',#{name},'%')");
+            }
+            return sql.toString();
+        }
+
+        public String getOrg(Org org){
+            SQL sql = new SQL();
+            sql.FROM("t_org");
+            sql.SELECT("*");
+            sql.WHERE("parentId is not null");
+            if(org.getCode() != null && org.getCode() != ""){
+                sql.WHERE("code = #{code}");
+            }
+            if(org.getName() != null && org.getName() != ""){
+                sql.WHERE("name like concat('%',#{name},'%')");
+            }
+            if(org.getOrgLevel() != null && org.getOrgLevel() != ""){
+                sql.WHERE("orgLevel = #{orgLevel}");
+            }
+            if(org.getType() != null && org.getType() != ""){
+                sql.WHERE("type = #{type}");
+            }
+            return sql.toString();
+        }
+    }
 }

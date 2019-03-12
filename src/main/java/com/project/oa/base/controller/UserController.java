@@ -4,6 +4,7 @@ import com.project.oa.base.bean.User;
 import com.project.oa.base.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -24,6 +25,46 @@ public class UserController {
     @Autowired
     private IUserService userService;
 
+    @RequestMapping("getUser")
+    @ResponseBody
+    public List<User> getUser(User user){
+        return userService.getUser(user);
+    }
+
+    @RequestMapping("getUserById")
+    @ResponseBody
+    public User getUserById(int id){
+        return userService.getUserById(id);
+    }
+
+    @RequestMapping("deleteUser")
+    @ResponseBody
+    public String deleteUser(@RequestBody List<User> users){
+        String result = "ok";
+        try {
+            for (User user : users) {
+                userService.deleteUser(user);
+            }
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            result = "fail";
+        }
+        return result;
+    }
+
+    @RequestMapping("updateUser")
+    @ResponseBody
+    public String updateUser(User user){
+        String result = "ok";
+        try {
+            userService.updateUser(user);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            result = "fail";
+        }
+        return result;
+    }
+
     @RequestMapping("addUser")
     @ResponseBody
     public String addUser(User user){
@@ -42,8 +83,8 @@ public class UserController {
 
     @RequestMapping("getUserByOrgId")
     @ResponseBody
-    public List<User> getUserByOrgId(String orgId){
-        return userService.getUserByOrgId(orgId);
+    public List<User> getUserByOrgId(User user){
+        return userService.getUserByOrgId(user);
     }
 
     @RequestMapping("login")

@@ -23,6 +23,11 @@ public class OrgServiceImpl implements IOrgService {
     private OrgMapper orgMapper;
 
     @Override
+    public List<Org> getOrg(Org org) {
+        return orgMapper.getOrg(org);
+    }
+
+    @Override
     public Org getOrgById(String id) {
         return orgMapper.getOrgById(id);
     }
@@ -43,8 +48,8 @@ public class OrgServiceImpl implements IOrgService {
     }
 
     @Override
-    public List<Org> getChildOrg(int id) {
-        return orgMapper.getChildOrg(id);
+    public List<Org> getChildOrg(Org org) {
+        return orgMapper.getChildOrg(org);
     }
 
     @Override

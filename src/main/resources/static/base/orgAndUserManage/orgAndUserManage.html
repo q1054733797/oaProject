@@ -30,6 +30,7 @@
         var tree = mini.get("tree");
 
         var parentOrg = null;
+        var user = null;
 
         //tab类型
         var queryOrg = {name:"queryOrg",title:"机构查询",url:"/base/orgAndUserManage/queryOrg.html"};
@@ -48,8 +49,7 @@
             }};
         var userInfo = {name:"userInfo",title:"员工信息",url:"/base/orgAndUserManage/userInfo.html",onload:function (e) {
                 var frame = tabs.getTabIFrameEl(e.tab);
-                var data = {id:userId};
-                frame.contentWindow.setData(data);
+                frame.contentWindow.setData(user);
             }};
         var roleSet = {name:"roleSet",title:"权限设置",url:"/base/orgAndUserManage/roleSet.html",onload:function (e) {
                 var frame = tabs.getTabIFrameEl(e.tab);
@@ -71,7 +71,7 @@
         function showTabs(e) {
             if (e.node.userId != null) {
                 //用户操作
-                parentOrg = tree.getRootNode().children[0];
+                user = e.node;
                 tabs.removeAll();
                 tabs.addTab(userInfo);
                 tabs.addTab(roleSet);
@@ -88,8 +88,7 @@
                 } else {
                     //机构操作
                     parentOrg = e.node;
-                    parentOrg.parentId = tree.getRootNode().children[0].orgId;
-                    parentOrg.parentOrgName = tree.getRootNode().children[0].name;
+                    parentOrg.parentOrgName = tree.getParentNode(e.node).name;
                     tabs.removeAll();
                     tabs.addTab(orgInfo);
                     tabs.addTab(orgOrg);

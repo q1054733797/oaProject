@@ -11,13 +11,96 @@
     </style>
 </head>
 <body>
-queryOrg
+    <div id="form">
+        <table border="0" cellpadding="1" cellspacing="2" style="width:100%;table-layout:fixed;">
+            <tr>
+                <th style="width: 80px;text-align: right;">机构代码:</th>
+                <td>
+                    <input name="code" class="mini-textbox"/>
+                </td>
+                <th style="width: 80px;text-align: right;">机构名称:</th>
+                <td>
+                    <input name="name" class="mini-textbox"/>
+                </td>
+                <th style="width: 80px;text-align: right;">机构级别:</th>
+                <td>
+                    <input name="orgLevel" class="mini-combobox" url="/getDictItem?dict_code=orgLevel"
+                        textField="name" valueField="code" allowInput="false" emptyText="请选择.."/>
+                </td>
+            </tr>
+            <tr>
+                <th style="width: 80px;text-align: right;">机构类型:</th>
+                <td>
+                    <input name="type" class="mini-combobox" url="/getDictItem?dict_code=orgType"
+                           textField="name" valueField="code" allowInput="false" emptyText="请选择.."/>
+                </td>
+                <td colspan="2">
+                    <a class="mini-button" iconCls="icon-search" onclick="search">查询</a>
+                    <a class="mini-button" iconCls="icon-reload" onclick="reset">重置</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mini-fit">
+        <div id="grid" class="mini-datagrid" style="width:100%;height:100%;"
+             url="/getOrg"  idField="id" >
+            <div property="columns">
+                <div field="name" align="center" headerAlign="center" >机构名称</div>
+                <div field="code" align="center" headerAlign="center" >机构代码</div>
+                <div field="orgLevel" align="center" headerAlign="center" renderer="getOrgLevel">机构级别</div>
+                <div field="type" align="center" headerAlign="center" renderer="getOrgType">机构类型</div>
+                <div field="linkman" align="center" headerAlign="center" >机构联系人</div>
+                <div field="remark" align="center" headerAlign="center" >备注</div>
+            </div>
+        </div>
+    </div>
     <script>
         mini.parse();
 
-        function setData(data) {
-            data = mini.clone(data);
-            alert(data);
+        var form = new mini.Form("form");
+        var grid = mini.get("grid");
+
+        grid.load();
+
+        function getOrgLevel(e) {
+            var orgLevel = String(e.value);
+            $.ajax({
+                url:"/getDictItemText",
+                type:"post",
+                data:{dictCode:"orgLevel",dictItemCode:orgLevel},
+                async:false,
+                success:function (text) {
+                    if (null != text){
+                        orgLevel = text;
+                    }
+                }
+            });
+            return orgLevel;
+        }
+
+        function getOrgType(e) {
+            var orgType = String(e.value);
+            $.ajax({
+                url:"/getDictItemText",
+                type:"post",
+                data:{dictCode:"orgType",dictItemCode:orgType},
+                async:false,
+                success:function (text) {
+                    if (null != text){
+                        orgType = text;
+                    }
+                }
+            });
+            return orgType;
+        }
+
+        function reset() {
+            form.reset();
+        }
+
+        function search() {
+            var data = form.getData(true,true);
+            grid.load(data);
         }
     </script>
 </body>

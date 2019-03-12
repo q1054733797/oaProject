@@ -2,6 +2,7 @@ package com.project.oa.base.controller;
 
 import com.project.oa.base.bean.Org;
 import com.project.oa.base.service.IOrgService;
+import com.project.oa.base.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,14 @@ import java.util.List;
 public class OrgController {
     @Autowired
     private IOrgService orgService;
+    @Autowired
+    private IUserService userService;
+
+    @RequestMapping("getOrg")
+    @ResponseBody
+    public List<Org> getOrg(Org org){
+        return orgService.getOrg(org);
+    }
 
     @RequestMapping("getOrgById")
     @ResponseBody
@@ -74,8 +83,8 @@ public class OrgController {
 
     @RequestMapping("getChildOrg")
     @ResponseBody
-    public List getChildren(int id){
-        return orgService.getChildOrg(id);
+    public List getChildren(Org org){
+        return orgService.getChildOrg(org);
     }
 
     @RequestMapping("getOrgAndUserTree")
@@ -87,7 +96,8 @@ public class OrgController {
     private void deleteOrgs(List<Org> orgs){
         for (Org org : orgs) {
             orgService.deleteOrg(org);
-            List<Org> childOrg = orgService.getChildOrg(Integer.parseInt(org.getId()));
+            userService.deleteUserByOrgId(Integer.parseInt(org.getId()));
+            List<Org> childOrg = orgService.getChildOrg(org);
             deleteOrg(childOrg);
         }
     }

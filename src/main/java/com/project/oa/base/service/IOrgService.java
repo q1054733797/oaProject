@@ -13,9 +13,10 @@ import java.util.List;
  */
 public interface IOrgService {
     List<OrgAndUserTree> getOrgAndUserTree();
-    List<Org> getChildOrg(int id);
+    List<Org> getChildOrg(Org org);
     int addOrg(Org org);
     int updateOrg(Org org);
     int deleteOrg(Org org);
     Org getOrgById(String id);
+    List<Org> getOrg(Org org);
 }
