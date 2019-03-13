@@ -20,9 +20,27 @@ public class Menu {
     private String iconCls;
     private String level;
     private List<Menu> children;
+    private String checked;
+    private String roleId;
 
     public Menu(){
 
+    }
+
+    public String getChecked() {
+        return checked;
+    }
+
+    public void setChecked(String checked) {
+        this.checked = checked;
+    }
+
+    public String getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(String roleId) {
+        this.roleId = roleId;
     }
 
     public String getId() {

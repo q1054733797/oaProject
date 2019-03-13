@@ -1,7 +1,9 @@
 package com.project.oa.base.service;
 
 import com.project.oa.base.bean.Role;
+import com.project.oa.base.bean.User;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -15,4 +17,11 @@ public interface IRoleService {
     int updateRole(Role role);
     int addRole(Role role);
     List<Role> getRole(Role role);
+    List<Role> getUserOwnRole(User user);
+    List<Role> getUserNoRole(User user);
+    int grantRole(int roleId,int userId);
+    int cancelRole(int roleId,int userId);
+    int cancelRoleByUserId(int userId);
+    int cancelRoleByRoleId(int roleId);
+    boolean userOwnRole(int userId,int roleId);
 }

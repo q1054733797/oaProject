@@ -51,10 +51,9 @@
                 var frame = tabs.getTabIFrameEl(e.tab);
                 frame.contentWindow.setData(user);
             }};
-        var roleSet = {name:"roleSet",title:"权限设置",url:"/base/orgAndUserManage/roleSet.html",onload:function (e) {
+        var roleSet = {name:"roleSet",title:"角色设置",url:"/base/orgAndUserManage/roleSet.html",onload:function (e) {
                 var frame = tabs.getTabIFrameEl(e.tab);
-                var data = {id:userId};
-                frame.contentWindow.setData(data);
+                frame.contentWindow.setData(user);
             }};
 
         init();

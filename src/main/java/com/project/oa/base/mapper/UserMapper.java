@@ -51,8 +51,8 @@ public interface UserMapper {
     class UserProvider{
         public String getUser(User user){
             SQL sql = new SQL();
-            sql.FROM("t_user");
-            sql.SELECT("*");
+            sql.FROM("t_user a");
+            sql.SELECT("a.*");
             if(user.getUsername() != null && user.getUsername() != ""){
                 sql.WHERE("username like concat('%',#{username},'%')");
             }
@@ -61,6 +61,10 @@ public interface UserMapper {
             }
             if(user.getOrgId() != null && user.getOrgId() != ""){
                 sql.WHERE("orgId = #{orgId}");
+            }
+            if(user.getRoleId() != null && user.getRoleId() != ""){
+                sql.LEFT_OUTER_JOIN("t_user_role b on a.id = b.user_id and b.role_id = #{roleId}");
+                sql.SELECT("case when b.role_id is not null then 'y' else 'n' end ownRole");
             }
             return sql.toString();
         }

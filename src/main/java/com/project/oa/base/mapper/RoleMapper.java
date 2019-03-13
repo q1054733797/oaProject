@@ -1,12 +1,11 @@
 package com.project.oa.base.mapper;
 
 import com.project.oa.base.bean.Role;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.SelectProvider;
-import org.apache.ibatis.annotations.Update;
+import com.project.oa.base.bean.User;
+import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.jdbc.SQL;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -16,6 +15,28 @@ import java.util.List;
  * @Version: 1.0
  */
 public interface RoleMapper {
+    @Select("select * from t_user_role where user_id = #{userId} and role_id = #{roleId}")
+    List<HashMap> userOwnRole(@Param("userId") int userId,@Param("roleId")int roleId);
+
+    @Delete("delete from t_user_role where role_id = #{roleId}")
+    int cancelRoleByRoleId(int roleId);
+
+    @Delete("delete from t_user_role where user_id = #{userId}")
+    int cancelRoleByUserId(int userId);
+
+    @Delete("delete from t_user_role where role_id = #{roleId} and user_id = #{userId}")
+    int cancelRole(@Param("roleId") int roleId,@Param("userId") int userId);
+
+    @Insert("insert into t_user_role(user_id,role_id) values(#{userId},#{roleId})")
+    int grantRole(@Param("roleId") int roleId,@Param("userId") int userId);
+
+    @Select("select a.* from t_role a " +
+            "inner join t_user_role b on a.id = b.role_id and b.user_id = #{id}")
+    List<Role> getUserOwnRole(User user);
+
+    @Select("select a.* from t_role a where a.id not in (select role_id from t_user_role where user_id = #{id})")
+    List<Role> getUserNoRole(User user);
+
     @Delete("delete from t_role where id = #{id}")
     int deleteRole(Role role);
 

@@ -62,61 +62,69 @@
                 onload:function () {
 
                 },
-                ondestroy:function () {
-                    var frame = this.getIFrameEl();
-                    var data = frame.contentWindow.getData();
-                    e.sender.setText(data.name);
-                    e.sender.setValue(data.id);
+                ondestroy:function (action) {
+                    if (action == "ok"){
+                        var frame = this.getIFrameEl();
+                        var data = frame.contentWindow.getData();
+                        e.sender.setText(data.name);
+                        e.sender.setValue(data.id);
+                    }
                 }
             });
         }
 
         function getOrgName(e) {
             var orgName = String(e.value);
-            $.ajax({
-                url:"/getOrgById",
-                type:"post",
-                data:{id:orgName},
-                async:false,
-                success:function (text) {
-                    if (null != text){
-                        orgName = text.name;
+            if (orgName != null && orgName != ""){
+                $.ajax({
+                    url:"/getOrgById",
+                    type:"post",
+                    data:{id:orgName},
+                    async:false,
+                    success:function (text) {
+                        if (null != text){
+                            orgName = text.name;
+                        }
                     }
-                }
-            });
-            return orgName;
+                });
+                return orgName;
+            }
         }
 
         function getStatus(e) {
             var status = String(e.value);
-            $.ajax({
-                url:"/getDictItemText",
-                type:"post",
-                data:{dictCode:"userStatus",dictItemCode:status},
-                async:false,
-                success:function (text) {
-                    if (null != text){
-                        status = text;
+            if (status != null && status !=""){
+                $.ajax({
+                    url:"/getDictItemText",
+                    type:"post",
+                    data:{dictCode:"userStatus",dictItemCode:status},
+                    async:false,
+                    success:function (text) {
+                        if (null != text){
+                            status = text;
+                        }
                     }
-                }
-            });
-            return status;
+                });
+                return status;
+            }
         }
 
         function getSex(e) {
             var sex = String(e.value);
-            $.ajax({
-                url:"/getDictItemText",
-                type:"post",
-                data:{dictCode:"gender",dictItemCode:sex},
-                async:false,
-                success:function (text) {
-                    if (null != text){
-                        sex = text;
+            if(sex != null && sex != ""){
+                $.ajax({
+                    url:"/getDictItemText",
+                    type:"post",
+                    data:{dictCode:"gender",dictItemCode:sex},
+                    async:false,
+                    success:function (text) {
+                        if (null != text){
+                            sex = text;
+                        }
                     }
-                }
-            });
-            return sex;
+                });
+                return sex;
+            }
         }
 
         function reset() {

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>授权管理</title>
+    <script src="../../miniui/scripts/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        html, body{
+            margin:0;padding:0;border:0;width:100%;height:100%;overflow:hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="mini-fit">
+        <div class="mini-panel" title="角色授权" style="width: 30%;height: 100%;float: left;">
+            <div id="roleForm">
+                <table border="0" cellpadding="1" cellspacing="5" style="width:100%;table-layout:fixed;">
+                    <tr>
+                        <td>
+                            <input name="code" class="mini-textbox" emptyText="角色代码" style="width: 100%;"/>
+                        </td>
+                        <td>
+                            <input name="name" class="mini-textbox" emptyText="角色名称" style="width: 100%;"/>
+                        </td>
+                        <td>
+                            <a class="mini-button" iconCls="icon-search" onclick="searchRole">查询</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="mini-fit">
+                <div id="roleGrid" class="mini-datagrid" style="width:100%;height:100%;"
+                     url="/getRole"  idField="id" showPager="false">
+                    <div property="columns">
+                        <div field="code" align="center" headerAlign="center" >角色代码</div>
+                        <div field="name" align="center" headerAlign="center" >角色名称</div>
+                        <div align="center" headerAlign="center" renderer="setGrant">授权配置</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tabs" class="mini-tabs" activeIndex="0" style="width:69%;height:100%;float: left;margin-left: 1%;">
+            <div name="menuRole" title="菜单授权">
+                <div class="mini-toolbar">
+                    <div id="menuForm">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td>
+                                    <a class="mini-button" iconCls="icon-save" onclick="saveMenuRole">保存</a>
+                                    <span class="separator"></span>
+                                    <a class="mini-button" iconCls="icon-expand" onclick="expandAll()">全部展开</a>
+                                    <a class="mini-button" iconCls="icon-collapse" onclick="collapseAll()">全部折叠</a>
+                                </td>
+                                <td style="white-space:nowrap;">
+                                    <input name="name" class="mini-textbox" emptyText="菜单名">
+                                    &nbsp
+                                    <a class="mini-button" iconCls="icon-search" onclick="searchMenu">查询</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="mini-fit">
+                    <ul id="menuTree" class="mini-tree" url="/getMenu" style="width:100%;padding:5px;"
+                        showTreeIcon="true" textField="text" idField="id" expandOnLoad="0"
+                        showCheckBox="true" allowSelect="false">
+                    </ul>
+                </div>
+            </div>
+            <div name="userRole" title="用户授权">
+                <div class="mini-toolbar" style="border-bottom:0;padding:0px;">
+                    <div id="userForm">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td>
+                                    <a class="mini-button" iconCls="icon-save" onclick="saveUserRole">保存</a>
+                                    <span class="separator"></span>
+                                    <a class="mini-button" iconCls="icon-ok" onclick="grantAllRole">全部授予</a>
+                                    <a class="mini-button" iconCls="icon-cancel" onclick="cancelAllRole">全部取消</a>
+                                </td>
+                                <td style="white-space:nowrap;">
+                                    <input name="name" class="mini-textbox" emptyText="用户姓名">
+                                    &nbsp
+                                    <input name="orgId" class="mini-buttonedit" emptyText="请选择机构..." onbuttonclick="selectOrg" allowInput="false" />
+                                    &nbsp
+                                    <a class="mini-button" iconCls="icon-search" onclick="searchUser">查询</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="mini-fit">
+                    <div id="userGrid" class="mini-datagrid" style="width:100%;height:100%;"
+                         url="/getUser" multiSelect="true" allowCellSelect="true" allowCellEdit="true">
+                        <div property="columns">
+                            <div field="ownRole" type="checkboxcolumn" trueValue="y" falseValue="n" align="center" headerAlign="center" width="30">授权</div>
+                            <div field="name" align="center" headerAlign="center" >用户姓名</div>
+                            <div field="username" align="center" headerAlign="center" >用户登录名</div>
+                            <div field="sex" align="center" headerAlign="center" renderer="getSex">性别</div>
+                            <div field="status" align="center" headerAlign="center" renderer="getStatus">用户状态</div>
+                            <div field="orgId" align="center" headerAlign="center" renderer="getOrgName">所属机构</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mini.parse();
+
+        var roleGrid = mini.get("roleGrid");
+        var userGrid = mini.get("userGrid");
+        var menuTree = mini.get("menuTree");
+        var tabs = mini.get("tabs");
+        var roleForm = new mini.Form("roleForm");
+        var menuForm = new mini.Form("menuForm");
+        var userForm = new mini.Form("userForm");
+
+        var roleId = null;
+
+        roleGrid.load();
+        
+        function saveMenuRole() {
+            var data = menuTree.getCheckedNodes(false);
+            alert(mini.encode(data));
+        }
+
+        function saveUserRole() {
+            mini.confirm("确定要修改吗？","系统提示",function (action) {
+                if ("ok" == action){
+                    var rows = userGrid.getChanges();
+                    if (roleId == null || roleId == ""){
+                        mini.alert("请选择要配置的角色");
+                    } else{
+                        var data = {users:{}};
+                        data.roleId = roleId;
+                        data.users = rows;
+                        var json = mini.encode(data);
+                        $.ajax({
+                            url:"/updateRoleUsers",
+                            type:"post",
+                            data:json,
+                            contentType:"application/json;charset=utf-8",
+                            success:function (text) {
+                                if ("ok" == text){
+                                    mini.alert("修改成功","系统提示",function (action) {
+                                        if ("ok" == action){
+                                            userGrid.reload();
+                                        }
+                                    });
+                                }else{
+                                    mini.alert("修改失败");
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        function grantAllRole() {
+            mini.confirm("确定全部授予吗？","系统提示",function (action) {
+                if ("ok" == action){
+                    var rows = userGrid.data;
+                    addRoleUsers(rows);
+                }
+            });
+        }
+
+        function cancelAllRole() {
+            mini.confirm("确定全部取消吗？","系统提示",function (action) {
+                if ("ok" == action){
+                    var rows = userGrid.data;
+                    deleteRoleUsers(rows);
+                }
+            });
+        }
+
+        function addRoleUsers(rows) {
+            if (roleId == null || roleId == ""){
+                mini.alert("请选择要配置的角色");
+            } else{
+                var data = {users:{}};
+                data.roleId = roleId;
+                data.users = rows;
+                var json = mini.encode(data);
+                $.ajax({
+                    url:"/addRoleUsers",
+                    type:"post",
+                    data:json,
+                    contentType:"application/json;charset=utf-8",
+                    success:function (text) {
+                        if ("ok" == text){
+                            mini.alert("授予成功","系统提示",function (action) {
+                                if ("ok" == action){
+                                    userGrid.reload();
+                                }
+                            });
+                        }else{
+                            mini.alert("授予失败");
+                        }
+                    }
+                });
+            }
+        }
+
+        function deleteRoleUsers(rows) {
+            if (roleId == null || roleId == ""){
+                mini.alert("请选择要配置的角色");
+            } else{
+                var data = {users:{}};
+                data.roleId = roleId;
+                data.users = rows;
+                var json = mini.encode(data);
+                $.ajax({
+                    url:"/deleteRoleUsers",
+                    type:"post",
+                    data:json,
+                    contentType:"application/json;charset=utf-8",
+                    success:function (text) {
+                        if ("ok" == text){
+                            mini.alert("取消成功","系统提示",function (action) {
+                                if ("ok" == action){
+                                    userGrid.reload();
+                                }
+                            });
+                        }else{
+                            mini.alert("取消失败");
+                        }
+                    }
+                });
+            }
+        }
+
+        function setGrant(e) {
+            var value = e.record.id;
+            return "<a style='color: blue;cursor: pointer' onclick='setRoleId("+ value + ")'>配置</a>";
+        }
+
+        function setRoleId(value) {
+            roleId = value;
+            userGrid.load({roleId:roleId});
+        }
+        
+        function expandAll() {
+            menuTree.expandAll();
+        }
+        
+        function collapseAll() {
+            menuTree.collapseAll();
+        }
+
+        function selectOrg(e) {
+            mini.open({
+                url:"/base/orgAndUserManage/orgTree.html",
+                title:"选择机构",
+                width:300,
+                height:500,
+                onload:function () {
+
+                },
+                ondestroy:function (action) {
+                    if (action == "ok"){
+                        var frame = this.getIFrameEl();
+                        var data = frame.contentWindow.getData();
+                        e.sender.setText(data.name);
+                        e.sender.setValue(data.id);
+                    }
+                }
+            });
+        }
+
+        function getOrgName(e) {
+            var orgName = String(e.value);
+            if (orgName != null && orgName != ""){
+                $.ajax({
+                    url:"/getOrgById",
+                    type:"post",
+                    data:{id:orgName},
+                    async:false,
+                    success:function (text) {
+                        if (null != text){
+                            orgName = text.name;
+                        }
+                    }
+                });
+                return orgName;
+            }
+        }
+
+        function getStatus(e) {
+            var status = String(e.value);
+            if (status != null && status !=""){
+                $.ajax({
+                    url:"/getDictItemText",
+                    type:"post",
+                    data:{dictCode:"userStatus",dictItemCode:status},
+                    async:false,
+                    success:function (text) {
+                        if (null != text){
+                            status = text;
+                        }
+                    }
+                });
+                return status;
+            }
+        }
+
+        function getSex(e) {
+            var sex = String(e.value);
+            if(sex != null && sex != ""){
+                $.ajax({
+                    url:"/getDictItemText",
+                    type:"post",
+                    data:{dictCode:"gender",dictItemCode:sex},
+                    async:false,
+                    success:function (text) {
+                        if (null != text){
+                            sex = text;
+                        }
+                    }
+                });
+                return sex;
+            }
+        }
+
+        function searchRole() {
+            var data = roleForm.getData(true,true);
+            roleGrid.load(data);
+        }
+
+        function searchMenu() {
+            var data = menuForm.getData(true,true);
+            var key = data.name;
+            if(key == ""){
+                menuTree.clearFilter();
+            }else{
+                key = key.toLowerCase();
+                menuTree.filter(function (node) {
+                    var text = node.name ? node.name.toLowerCase() : "";
+                    if (text.indexOf(key) != -1) {
+                        return true;
+                    }
+                });
+            }
+        }
+
+        function searchUser() {
+            var data = userForm.getData(true,true);
+            userGrid.load(data);
+        }
+
+        function saveData() {
+            if (form.validate() == true){
+                var data = form.getData(true,true);
+                $.ajax({
+                    url:"/updateMenu",
+                    type:"post",
+                    data:data,
+                    async:false,
+                    success:function (text) {
+                        if ("ok" == text){
+                            mini.alert("修改成功","系统提示",function (action) {
+                                if ("ok" == action){
+                                    tree.reload();
+                                    form.setData(tree.getSelectedNode());
+                                }
+                            });
+                        } else{
+                            mini.alert("修改失败");
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

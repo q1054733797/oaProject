@@ -1,6 +1,7 @@
 package com.project.oa.base.controller;
 
 import com.project.oa.base.bean.User;
+import com.project.oa.base.service.IRoleService;
 import com.project.oa.base.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,8 @@ import java.util.List;
 public class UserController {
     @Autowired
     private IUserService userService;
+    @Autowired
+    private IRoleService roleService;
 
     @RequestMapping("getUser")
     @ResponseBody
@@ -44,6 +47,7 @@ public class UserController {
         try {
             for (User user : users) {
                 userService.deleteUser(user);
+                roleService.cancelRoleByUserId(Integer.parseInt(user.getId()));
             }
         }catch (Exception e){
             System.out.println(e.getMessage());

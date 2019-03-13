@@ -1,7 +1,9 @@
 package com.project.oa.base.controller;
 
 import com.project.oa.base.bean.Org;
+import com.project.oa.base.bean.User;
 import com.project.oa.base.service.IOrgService;
+import com.project.oa.base.service.IRoleService;
 import com.project.oa.base.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,6 +25,8 @@ public class OrgController {
     private IOrgService orgService;
     @Autowired
     private IUserService userService;
+    @Autowired
+    private IRoleService roleService;
 
     @RequestMapping("getOrg")
     @ResponseBody
@@ -94,9 +98,16 @@ public class OrgController {
     }
 
     private void deleteOrgs(List<Org> orgs){
+        User user = null;
         for (Org org : orgs) {
             orgService.deleteOrg(org);
-            userService.deleteUserByOrgId(Integer.parseInt(org.getId()));
+            user = new User();
+            user.setOrgId(org.getId());
+            List<User> users = userService.getUserByOrgId(user);
+            for (User user1 : users) {
+                userService.deleteUser(user1);
+                roleService.cancelRoleByUserId(Integer.parseInt(user1.getId()));
+            }
             List<Org> childOrg = orgService.getChildOrg(org);
             deleteOrg(childOrg);
         }

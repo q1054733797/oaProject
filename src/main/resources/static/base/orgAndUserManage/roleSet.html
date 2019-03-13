@@ -2,9 +2,154 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>角色设置</title>
+    <script src="../../miniui/scripts/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        html, body{
+            margin:0;padding:0;border:0;width:100%;height:100%;overflow:hidden;
+        }
+    </style>
 </head>
 <body>
-roleSet
+    <div class="mini-fit">
+        <div id="ownRoleGrid" class="mini-datagrid" style="width: 30%;height: 90%;float: left" showPager="false"
+            url="/getUserOwnRole" multiSelect="true">
+            <div property="columns">
+                <div type="checkColumn" width="20"></div>
+                <div field="name" align="center" headerAlign="center">已授予角色</div>
+            </div>
+        </div>
+        <div style="margin-left:5%;margin-right:5%;margin-top:20%;float: left">
+            <p><a class="mini-button" style="width: 80px" onclick="cancelGrant">取消授予</a></p>
+            <p><a class="mini-button" style="width: 80px" onclick="cancelAll">全部取消</a></p>
+            <p><a class="mini-button" style="width: 80px" onclick="grantAll">全部授予</a></p>
+            <p><a class="mini-button" style="width: 80px" onclick="grantRole">授予权限</a></p>
+        </div>
+        <div id="noRoleGrid" class="mini-datagrid" style="width: 30%;height: 90%;float: left" showPager="false"
+            url="/getUserNoRole" multiSelect="true">
+            <div property="columns">
+                <div type="checkColumn" width="20"></div>
+                <div field="name" align="center" headerAlign="center">未授予角色</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mini.parse();
+
+        var ownRoleGrid = mini.get("ownRoleGrid");
+        var noRoleGrid = mini.get("noRoleGrid");
+
+        var userId = null;
+
+        function cancelGrant() {
+            var rows = ownRoleGrid.getSelecteds();
+            if (rows.length > 0){
+                mini.confirm("确定要取消授予角色吗？","系统提示",function (action) {
+                    if ("ok" == action){
+                        deleteUserRole(rows);
+                    }
+                });
+            } else{
+                mini.alert("请至少选择一条已授予角色");
+            }
+        }
+
+        function cancelAll() {
+            var rows = ownRoleGrid.data;
+            if (rows.length > 0){
+                mini.confirm("确定取消授予该用户的全部角色吗？","系统提示",function (action) {
+                    if ("ok" == action){
+                        deleteUserRole(rows);
+                    }
+                });
+            } else{
+                mini.alert("该用户没有被授予任何角色");
+            }
+        }
+
+        function grantAll() {
+            var rows = noRoleGrid.data;
+            if (rows.length > 0){
+                mini.confirm("确定授予全部角色吗？","系统提示",function (action) {
+                    if ("ok" == action){
+                        addUserRole(rows);
+                    }
+                });
+            } else{
+                mini.alert("该用户没有未被授予的角色");
+            }
+        }
+
+        function grantRole() {
+            var rows = noRoleGrid.getSelecteds();
+            if (rows.length > 0){
+                mini.confirm("确定授予角色吗？","系统提示",function (action) {
+                    if ("ok" == action){
+                        addUserRole(rows);
+                    }
+                });
+            } else{
+                mini.alert("请至少选择一条未授予角色");
+            }
+        }
+
+        function addUserRole(rows) {
+            var data = {roles:{}};
+            data.id = userId;
+            data.roles = rows;
+            var json = mini.encode(data);
+            $.ajax({
+                url:"/grantRole",
+                type:"post",
+                data:json,
+                contentType:"application/json;charset=utf-8",
+                success:function (text) {
+                    if ("ok" == text){
+                        mini.alert("授予成功","系统提示",function (action) {
+                            if ("ok" == action){
+                                ownRoleGrid.reload();
+                                noRoleGrid.reload();
+                            }
+                        });
+                    }else{
+                        mini.alert("授予失败");
+                    }
+                }
+            });
+        }
+
+        function deleteUserRole(rows) {
+            var data = {roles:{}};
+            data.id = userId;
+            data.roles = rows;
+            var json = mini.encode(data);
+            $.ajax({
+                url:"/cancelRole",
+                type:"post",
+                data:json,
+                contentType:"application/json;charset=utf-8",
+                success:function (text) {
+                    if ("ok" == text){
+                        mini.alert("取消授予成功","系统提示",function (action) {
+                            if ("ok" == action){
+                                ownRoleGrid.reload();
+                                noRoleGrid.reload();
+                            }
+                        });
+                    }else{
+                        mini.alert("取消授予失败");
+                    }
+                }
+            });
+        }
+
+        function setData(data) {
+            var data = mini.clone(data);
+            userId = data.userId;
+            ownRoleGrid.load({id:data.userId});
+            noRoleGrid.load({id:data.userId});
+        }
+    </script>
 </body>
 </html>

@@ -22,9 +22,27 @@ public class User {
     private Date outDate;
     private String phone;
     private String orgId;
+    private String roleId;
+    private String ownRole;
 
     public User(){
 
+    }
+
+    public String getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(String roleId) {
+        this.roleId = roleId;
+    }
+
+    public String getOwnRole() {
+        return ownRole;
+    }
+
+    public void setOwnRole(String ownRole) {
+        this.ownRole = ownRole;
     }
 
     public String getId() {
