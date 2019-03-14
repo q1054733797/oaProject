@@ -99,7 +99,7 @@
         new MenuTip(menu);
 
         $.ajax({
-            url: "/getMenu",
+            url: "/getUserMenu",
             success: function (text) {
                 var data = mini.decode(text);
                 data = data[0].children;

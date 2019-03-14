@@ -12,7 +12,7 @@
 </head>
 <body>
     <div class="mini-fit">
-        <div class="mini-panel" title="角色授权" style="width: 30%;height: 100%;float: left;">
+        <div class="mini-panel" title="角色列表" style="width: 30%;height: 100%;float: left;">
             <div id="roleForm">
                 <table border="0" cellpadding="1" cellspacing="5" style="width:100%;table-layout:fixed;">
                     <tr>
@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 <div class="mini-fit">
-                    <ul id="menuTree" class="mini-tree" url="/getMenu" style="width:100%;padding:5px;"
+                    <ul id="menuTree" class="mini-tree" style="width:100%;padding:5px;"
                         showTreeIcon="true" textField="text" idField="id" expandOnLoad="0"
                         showCheckBox="true" allowSelect="false">
                     </ul>
@@ -122,8 +122,36 @@
         roleGrid.load();
         
         function saveMenuRole() {
-            var data = menuTree.getCheckedNodes(false);
-            alert(mini.encode(data));
+            mini.confirm("确定要修改吗？","系统提示",function (action) {
+                if ("ok" == action) {
+                    if (roleId == null || roleId == ""){
+                        mini.alert("请选择要配置的角色");
+                    } else{
+                        var nodes = menuTree.getCheckedNodes(true);
+                        var data = {menus:{}};
+                        data.roleId = roleId;
+                        data.menus = nodes;
+                        var json = mini.encode(data);
+                        $.ajax({
+                            url:"/updateRoleMenus",
+                            type:"post",
+                            data:json,
+                            contentType:"application/json;charset=utf-8",
+                            success:function (text) {
+                                if ("ok" == text){
+                                    mini.alert("修改成功");
+                                }else{
+                                    mini.alert("修改失败","系统提示",function (action) {
+                                        if ("ok" == action){
+                                            menuTree.reload();
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }
+            });
         }
 
         function saveUserRole() {
@@ -241,6 +269,7 @@
         function setRoleId(value) {
             roleId = value;
             userGrid.load({roleId:roleId});
+            menuTree.load("/getMenu?roleId=" + roleId);
         }
         
         function expandAll() {

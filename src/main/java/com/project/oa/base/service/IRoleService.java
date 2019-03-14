@@ -24,4 +24,6 @@ public interface IRoleService {
     int cancelRoleByUserId(int userId);
     int cancelRoleByRoleId(int roleId);
     boolean userOwnRole(int userId,int roleId);
+    int addMenuRole(int menuId,int roleId,String checked);
+    int deleteMenuRoleByRoleId(int roleId);
 }

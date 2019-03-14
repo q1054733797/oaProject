@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -20,6 +21,14 @@ import java.util.List;
 public class MenuController {
     @Autowired
     private IMenuService menuService;
+
+    @RequestMapping("getUserMenu")
+    @ResponseBody
+    public List getUserMenu(){
+        HashMap map = new HashMap();
+        map.put("userId", "1");
+        return menuService.getUserMenu(map);
+    }
 
     @RequestMapping("deleteMenu")
     @ResponseBody
@@ -69,18 +78,18 @@ public class MenuController {
 
     @RequestMapping("getChildrenMenu")
     @ResponseBody
-    public List getChildrenMenu(String id){
-        List menu = menuService.getChildrenMenu(Integer.parseInt(id));
-        processMenu(menu);
-        return menu;
+    public List getChildrenMenu(Menu menu){
+        List menus = menuService.getChildrenMenu(menu);
+        processMenu(menus);
+        return menus;
     }
 
     @RequestMapping("getMenu")
     @ResponseBody
-    public List getMenu(){
-        List menu = menuService.getMenu();
-        processMenu(menu);
-        return menu;
+    public List<Menu> getMenu(Menu menu){
+        List menus = menuService.getMenu(menu);
+        processMenu(menus);
+        return menus;
     }
 
     private void processMenu(List<Menu> list){

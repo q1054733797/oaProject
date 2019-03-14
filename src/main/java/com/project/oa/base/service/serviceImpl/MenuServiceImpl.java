@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -20,6 +22,16 @@ import java.util.List;
 public class MenuServiceImpl implements IMenuService{
     @Autowired
     private MenuMapper menuMapper;
+
+    @Override
+    public List<Menu> getUserMenu(HashMap map) {
+        Menu rootMenu = menuMapper.getRootMenu(new Menu());
+        map.put("menuId", rootMenu.getId());
+        getUserMenus(rootMenu,map);
+        List<Menu> menus = new ArrayList<>();
+        menus.add(rootMenu);
+        return menus;
+    }
 
     @Override
     public int deleteMenu(int id) {
@@ -43,14 +55,39 @@ public class MenuServiceImpl implements IMenuService{
     }
 
     @Override
-    public List getMenu() {
-        List<Menu> menu = menuMapper.getMenu();
-        return menu;
+    public List<Menu> getMenu(Menu menu) {
+        Menu rootMenu = menuMapper.getRootMenu(menu);
+        getMenus(rootMenu,menu.getRoleId());
+        List<Menu> menus = new ArrayList<>();
+        menus.add(rootMenu);
+        return menus;
     }
 
     @Override
-    public List<Menu> getChildrenMenu(int id) {
-        List<Menu> menu = menuMapper.getChildrenMenu(id);
-        return menu;
+    public List<Menu> getChildrenMenu(Menu menu) {
+        List<Menu> menus = menuMapper.getChildrenMenu(menu);
+        return menus;
+    }
+
+    private void getMenus(Menu menu,String roleId){
+        menu.setRoleId(roleId);
+        List<Menu> childrenMenu = menuMapper.getChildrenMenu(menu);
+        if (childrenMenu.size() > 0){
+            menu.setChildren(childrenMenu);
+            for (Menu childrenMenu1 : childrenMenu) {
+                getMenus(childrenMenu1,roleId);
+            }
+        }
+    }
+
+    private void getUserMenus(Menu menu,HashMap map){
+        List<Menu> childrenMenu = menuMapper.getUserMenu(map);
+        if (childrenMenu.size() > 0){
+            menu.setChildren(childrenMenu);
+            for (Menu childrenMenu1 : childrenMenu) {
+                map.put("menuId", childrenMenu1.getId());
+                getUserMenus(childrenMenu1,map);
+            }
+        }
     }
 }

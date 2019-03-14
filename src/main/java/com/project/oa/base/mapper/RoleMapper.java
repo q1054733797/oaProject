@@ -15,6 +15,12 @@ import java.util.List;
  * @Version: 1.0
  */
 public interface RoleMapper {
+    @Insert("insert into t_menu_role(menu_id,role_id,checked) values(#{menuId},#{roleId},#{checked})")
+    int addMenuRole(@Param("menuId") int menuId,@Param("roleId") int roleId,@Param("checked") String checked);
+
+    @Delete("delete from t_menu_role where role_id = #{roleId}")
+    int deleteMenuRoleByRoleId(int roleId);
+
     @Select("select * from t_user_role where user_id = #{userId} and role_id = #{roleId}")
     List<HashMap> userOwnRole(@Param("userId") int userId,@Param("roleId")int roleId);
 

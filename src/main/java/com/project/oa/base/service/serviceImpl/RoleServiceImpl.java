@@ -24,6 +24,16 @@ public class RoleServiceImpl implements IRoleService {
     private RoleMapper roleMapper;
 
     @Override
+    public int addMenuRole(int menuId, int roleId,String checked) {
+        return roleMapper.addMenuRole(menuId, roleId,checked);
+    }
+
+    @Override
+    public int deleteMenuRoleByRoleId(int roleId) {
+        return roleMapper.deleteMenuRoleByRoleId(roleId);
+    }
+
+    @Override
     public boolean userOwnRole(int userId, int roleId) {
         List<HashMap> maps = roleMapper.userOwnRole(userId, roleId);
         if(maps.size() > 0){
