@@ -33,13 +33,9 @@ public class RoleController {
         try {
             roleService.deleteMenuRoleByRoleId(Integer.parseInt(map.get("roleId").toString()));
             for (Map menu : menus) {
-                System.out.println(Integer.parseInt(menu.get("id").toString()));
-                System.out.println(Integer.parseInt(map.get("roleId").toString()));
-                System.out.println(menu.get("checked").toString());
                 roleService.addMenuRole(Integer.parseInt(menu.get("id").toString()), Integer.parseInt(map.get("roleId").toString()),menu.get("checked").toString());
             }
         }catch (Exception e){
-            System.out.println(e.getMessage());
             result = "fail";
         }
         return result;
