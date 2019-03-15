@@ -22,6 +22,11 @@ public class UserServiceImpl implements IUserService {
     private UserMapper userMapper;
 
     @Override
+    public User getUserByUsername(String username) {
+        return userMapper.getUserByUsername(username);
+    }
+
+    @Override
     public List<User> getUser(User user) {
         return userMapper.getUser(user);
     }

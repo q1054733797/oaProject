@@ -28,6 +28,12 @@ public class UserController {
     @Autowired
     private IRoleService roleService;
 
+    @RequestMapping("getLoginUser")
+    @ResponseBody
+    public User getLoginUser(HttpServletRequest request){
+        return (User) request.getSession().getAttribute("user");
+    }
+
     @RequestMapping("getUser")
     @ResponseBody
     public List<User> getUser(User user){
@@ -93,14 +99,18 @@ public class UserController {
 
     @RequestMapping("login")
     @ResponseBody
-    public String login(String username, String password){
-        System.out.println(username);
-        System.out.println(password);
+    public String login(String username, String password,HttpServletRequest request){
+        User user = userService.getUserByUsername(username);
         String message = "";
-        if("1054733797@qq.com".equals(username) && "123456".equals(password)){
-            message = "ok";
+        if(user != null){
+            if(user.getPassword().equals(password)){
+                message = "ok";
+                request.getSession().setAttribute("user", user);
+            }else{
+                message = "密码错误";
+            }
         }else{
-            message = "帐号或密码错误";
+            message = "帐号不存在";
         }
         return message;
     }

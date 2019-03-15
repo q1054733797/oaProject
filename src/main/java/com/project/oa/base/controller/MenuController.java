@@ -24,9 +24,9 @@ public class MenuController {
 
     @RequestMapping("getUserMenu")
     @ResponseBody
-    public List getUserMenu(){
+    public List getUserMenu(String userId){
         HashMap map = new HashMap();
-        map.put("userId", "1");
+        map.put("userId", userId);
         return menuService.getUserMenu(map);
     }
 

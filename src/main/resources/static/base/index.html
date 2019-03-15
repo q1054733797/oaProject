@@ -99,13 +99,26 @@
         new MenuTip(menu);
 
         $.ajax({
-            url: "/getUserMenu",
+            url: "/getLoginUser",
             success: function (text) {
-                var data = mini.decode(text);
-                data = data[0].children;
-                menu.loadData(data);
+                if (text != null && text != ""){
+                    getUserMenu(text.id);
+                } else{
+                    window.location.href = "/base/login.html";
+                }
             }
         });
+
+        function getUserMenu(userId){
+            $.ajax({
+                url: "/getUserMenu?userId=" + userId,
+                success: function (text) {
+                    var data = mini.decode(text);
+                    data = data[0].children;
+                    menu.loadData(data);
+                }
+            });
+        }
 
         //toggle
         $("#toggle, .sidebar-toggle").click(function () {

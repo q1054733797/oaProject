@@ -13,6 +13,9 @@ import java.util.List;
  * @Version: 1.0
  */
 public interface UserMapper {
+    @Select("select * from t_user where username = #{username}")
+    User getUserByUsername(String username);
+
     @SelectProvider(type = UserProvider.class,method = "getUser")
     List<User> getUser(User user);
 
