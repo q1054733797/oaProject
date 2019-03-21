@@ -27,7 +27,9 @@ public class MenuController {
     public List getUserMenu(String userId){
         HashMap map = new HashMap();
         map.put("userId", userId);
-        return menuService.getUserMenu(map);
+        List<Menu> userMenu = menuService.getUserMenu(map);
+        processMenu(userMenu);
+        return userMenu;
     }
 
     @RequestMapping("deleteMenu")

@@ -1,6 +1,10 @@
 package com.project.oa;
 
-import com.project.oa.base.bean.User;
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.ProcessEngineConfiguration;
+import org.activiti.engine.ProcessEngines;
+import org.activiti.engine.repository.Deployment;
+import org.junit.Test;
 
 /**
  * @ClassName: Test01
@@ -9,11 +13,20 @@ import com.project.oa.base.bean.User;
  * @Version: 1.0
  */
 public class Test01 {
-    public static void main(String[] args) {
-        User user = new User();
-        user.setName("zhang");
-        String a = "123";
-        String b = "zhang";
-        System.out.println(user.getName() == b);
+
+    @Test
+    public void createTable(){
+        ProcessEngineConfiguration.createProcessEngineConfigurationFromResource("activiti.cfg.xml").buildProcessEngine();
+    }
+
+    @Test
+    public void deploymentProcessDefinition(){
+        System.out.println(ProcessEngines.getDefaultProcessEngine());
+//        Deployment deployment = processEngine.getRepositoryService().createDeployment()
+//                .name("我的请假流程")
+//                .addClasspathResource("processes/test.bpmn")
+//                .addClasspathResource("processes/test.png")
+//                .deploy();
+//        System.out.println(deployment.getId());
     }
 }

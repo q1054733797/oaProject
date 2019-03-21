@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../../miniui/scripts/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        html, body{
+            margin:0;padding:0;border:0;width:100%;height:100%;overflow:hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="form">
+        <table border="0" cellpadding="1" cellspacing="2" style="width:100%;table-layout:fixed;">
+            <tr>
+                <th style="width: 80px;text-align: right;">流程名称:</th>
+                <td>
+                    <input name="name" class="mini-textbox"/>
+                </td>
+                <th style="width: 80px;text-align: right;">流程key:</th>
+                <td>
+                    <input name="key" class="mini-textbox"/>
+                </td>
+                <td>
+                    <a class="mini-button" iconCls="icon-search" onclick="search">查询</a>
+                    <a class="mini-button" iconCls="icon-reload" onclick="reset">重置</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mini-toolbar">
+        <a class="mini-button" iconCls="icon-add" onclick="add">部署流程</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="remove">删除流程</a>
+    </div>
+    <div class="mini-fit">
+        <div id="grid" class="mini-datagrid" style="width:100%;height:100%;"
+             url="/getProcessDefinitionList"  idField="id"  multiSelect="true">
+            <div property="columns">
+                <div type="checkColumn" width="50px"></div>
+                <div field="name" align="center" headerAlign="center">流程名称</div>
+                <div field="key" align="center" headerAlign="center">流程key</div>
+                <div field="description" align="center" headerAlign="center">流程描述</div>
+                <div align="center" headerAlign="center" renderer="renderProcessImg">流程图片</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mini.parse();
+
+        var form = new mini.Form("form");
+        var grid = mini.get("grid");
+
+        grid.load();
+
+        function remove() {
+            var rows = grid.getSelecteds();
+            if (rows.length > 0){
+                mini.confirm("确定要删除吗？已发布的流程也将删除！","系统提示",function (action) {
+                    if ("ok" == action){
+                        var data = mini.encode(rows);
+                        $.ajax({
+                            url:"/removeProcessDefinition",
+                            type:"post",
+                            data:data,
+                            contentType:"application/json;charset=utf-8",
+                            async:false,
+                            success:function (text) {
+                                if ("ok" == text){
+                                    mini.alert("删除成功","系统提示",function (action) {
+                                        if ("ok" == action){
+                                            grid.reload();
+                                        }
+                                    });
+                                } else{
+                                    mini.alert("删除失败");
+                                }
+                            }
+                        });
+                    }
+                });
+            } else{
+                mini.alert("请至少选择一条数据");
+            }
+        }
+
+        function add() {
+            mini.open({
+                url:"/base/processDeployManage/deploymentProcessDefinition.html",
+                title:"部署流程",
+                width:500,
+                height:150,
+                onload:function () {
+
+                },
+                ondestroy:function (action) {
+                    if ("ok" == action){
+                        grid.reload();
+                    }
+                }
+            });
+        }
+
+        function renderProcessImg(e) {
+            var deploymentId = e.record.deploymentId;
+            var id = e.record.id;
+            return "<a style='color: blue;cursor: pointer;' onclick='showProcessImg(" + '"' + deploymentId + '",' + '"' + id + '"' +")'>点击查询流程图片</a>";
+        }
+
+        function showProcessImg(deploymentId,id) {
+            mini.open({
+                url:"/base/processDeployManage/showProcessImg.html",
+                title:"流程图片",
+                width:900,
+                height:500,
+                onload:function () {
+                    var frame = this.getIFrameEl();
+                    var data = {};
+                    data.deploymentId = deploymentId;
+                    data.id = id;
+                    frame.contentWindow.setData(data);
+                }
+            });
+        }
+
+        function search() {
+            var data = form.getData(true,true);
+            grid.load(data);
+        }
+
+        function reset() {
+            form.reset();
+        }
+    </script>
+</body>
+</html>
