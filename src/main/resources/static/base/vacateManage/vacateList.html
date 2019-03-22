@@ -31,7 +31,7 @@
     </div>
     <div class="mini-toolbar">
         <a class="mini-button" iconCls="icon-add" onclick="add">新增请假单</a>
-        <a class="mini-button" iconCls="icon-edit" onclick="remove">修改请假单</a>
+        <a class="mini-button" iconCls="icon-edit" onclick="edit">修改请假单</a>
         <a class="mini-button" iconCls="icon-remove" onclick="remove">删除请假单</a>
         <a class="mini-button" iconCls="icon-ok" onclick="apply">提交申请</a>
         <a class="mini-button" iconCls="icon-cancel" onclick="cancel">撤销申请</a>
@@ -41,11 +41,11 @@
              url="/getMyVacateList"  idField="id"  multiSelect="true">
             <div property="columns">
                 <div type="checkColumn" width="50px"></div>
-                <div field="startTime" align="center" headerAlign="center" renderer="getStartTime">开始日期</div>
+                <div field="startTime" align="center" headerAlign="center" renderer="getTime">开始日期</div>
                 <div field="dayNum" align="center" headerAlign="center">请假天数</div>
-                <div field="reason" align="center" headerAlign="center" renderer="renderProcessImg">请假原因</div>
-                <div field="applyTime" align="center" headerAlign="center" renderer="renderProcessImg">申请时间</div>
-                <div field="processStatus" align="center" headerAlign="center" renderer="renderProcessImg">流程动态</div>
+                <div field="reason" align="center" headerAlign="center">请假原因</div>
+                <div field="applyTime" align="center" headerAlign="center" renderer="getTime">申请时间</div>
+                <div field="processStatus" align="center" headerAlign="center">流程动态</div>
             </div>
         </div>
     </div>
@@ -58,34 +58,127 @@
 
         grid.load();
 
-        function remove() {
+        function cancel() {
             var rows = grid.getSelecteds();
             if (rows.length > 0){
-                mini.confirm("确定要删除吗？已发布的流程也将删除！","系统提示",function (action) {
+                if (checkCancelVacate(rows)){
+                    mini.confirm("确定要撤销吗？","系统提示",function (action) {
+                        if ("ok" == action){
+                            var data = mini.encode(rows);
+                            $.ajax({
+                                url:"/cancelVacates",
+                                type:"post",
+                                data:data,
+                                contentType:"application/json;charset=utf-8",
+                                async:false,
+                                success:function (text) {
+                                    if ("ok" == text){
+                                        mini.alert("撤销成功","系统提示",function (action) {
+                                            if ("ok" == action){
+                                                grid.reload();
+                                            }
+                                        });
+                                    } else{
+                                        mini.alert("撤销失败");
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }else{
+                    mini.alert("包含已被审批过的请假单，无法撤销！");
+                }
+            } else{
+                mini.alert("请至少选择一个请假单");
+            }
+        }
+
+        function apply() {
+            var rows = grid.getSelecteds();
+            if (rows.length > 0){
+                mini.confirm("确定要申请吗？","系统提示",function (action) {
                     if ("ok" == action){
                         var data = mini.encode(rows);
                         $.ajax({
-                            url:"/removeProcessDefinition",
+                            url:"/applyVacates",
                             type:"post",
                             data:data,
                             contentType:"application/json;charset=utf-8",
                             async:false,
                             success:function (text) {
                                 if ("ok" == text){
-                                    mini.alert("删除成功","系统提示",function (action) {
+                                    mini.alert("申请成功","系统提示",function (action) {
                                         if ("ok" == action){
                                             grid.reload();
                                         }
                                     });
                                 } else{
-                                    mini.alert("删除失败");
+                                    mini.alert("申请失败");
                                 }
                             }
                         });
                     }
                 });
             } else{
+                mini.alert("请至少选择一个请假单");
+            }
+        }
+
+        function remove() {
+            var rows = grid.getSelecteds();
+            if (rows.length > 0){
+                if (checkRemoveVacate(rows)){
+                    mini.confirm("确定要删除吗？","系统提示",function (action) {
+                        if ("ok" == action){
+                            var data = mini.encode(rows);
+                            $.ajax({
+                                url:"/removeVacates",
+                                type:"post",
+                                data:data,
+                                contentType:"application/json;charset=utf-8",
+                                async:false,
+                                success:function (text) {
+                                    if ("ok" == text){
+                                        mini.alert("删除成功","系统提示",function (action) {
+                                            if ("ok" == action){
+                                                grid.reload();
+                                            }
+                                        });
+                                    } else{
+                                        mini.alert("删除失败");
+                                    }
+                                }
+                            });
+                        }
+                    });
+                } else{
+                    mini.alert("删除的请假单中包含已提交申请的请假单，无法删除！");
+                }
+            } else{
                 mini.alert("请至少选择一条数据");
+            }
+        }
+
+        function edit(){
+            var row = grid.getSelected();
+            if (row && (row.processStatus != null && row.processStatus != "")){
+                mini.open({
+                    url:"/base/vacateManage/updateVacate.html",
+                    title:"修改请假单",
+                    width:500,
+                    height:250,
+                    onload:function () {
+                        var frame = this.getIFrameEl();
+                        frame.contentWindow.setData(row);
+                    },
+                    ondestroy:function (action) {
+                        if ("ok" == action){
+                            grid.reload();
+                        }
+                    }
+                });
+            } else{
+                mini.alert("请选择一个请假单");
             }
         }
 
@@ -106,7 +199,25 @@
             });
         }
 
-        function getStartTime(e) {
+        function checkCancelVacate(rows) {
+            for (var i=0;i<rows.length;i++){
+                if (rows[i].processStatus != null && rows[i].processStatus != "" && rows[i].processStatus != "请假单已提交"){
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function checkRemoveVacate(rows) {
+            for (var i=0;i<rows.length;i++){
+                if (rows[i].processStatus != null && rows[i].processStatus != ""){
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function getTime(e) {
             var value = String(e.value);
             var date = mini.parseDate(value);
             return mini.formatDate(date, "yyyy-MM-dd");

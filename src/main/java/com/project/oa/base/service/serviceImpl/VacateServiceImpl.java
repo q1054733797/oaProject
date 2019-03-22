@@ -22,6 +22,21 @@ public class VacateServiceImpl implements IVacateService {
     private VacateMapper vacateMapper;
 
     @Override
+    public Vacate getVacateByProcessInstId(String processInstId) {
+        return vacateMapper.getVacateByProcessInstId(processInstId);
+    }
+
+    @Override
+    public int removeVacate(Vacate vacate) {
+        return vacateMapper.removeVacate(vacate);
+    }
+
+    @Override
+    public int updateVacate(Vacate vacate) {
+        return vacateMapper.updateVacate(vacate);
+    }
+
+    @Override
     public int addVacate(Vacate vacate) {
         return vacateMapper.addVacate(vacate);
     }

@@ -1,5 +1,8 @@
 package com.project.oa.base.bean;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.util.Date;
 
 /**
@@ -10,16 +13,27 @@ import java.util.Date;
  */
 public class Vacate {
     private String id;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd'T'HH:mm:ss")
     private Date startTime;
     private String dayNum;
     private String reason;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd'T'HH:mm:ss")
     private Date applyTime;
     private String processStatus;
     private String processInstId;
     private String applyUserId;
+    private String userName;
 
     public Vacate(){
 
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getId() {

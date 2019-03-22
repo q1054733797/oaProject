@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>添加申请单</title>
+    <title>修改请假单</title>
     <script src="../../miniui/scripts/boot.js" type="text/javascript"></script>
     <style type="text/css">
         html, body{
@@ -12,6 +12,7 @@
 </head>
 <body>
     <div id="form">
+        <input name="id" class="mini-hidden">
         <table border="0" cellpadding="1" cellspacing="2" style="width:100%;table-layout:fixed;">
             <tr>
                 <th style="width:120px;text-align: right;">请假开始日期：</th>
@@ -47,19 +48,19 @@
             if (form.validate() == true){
                 var data = form.getData(true,true);
                 $.ajax({
-                    url:"/addVacate",
+                    url:"/updateVacate",
                     type:"post",
                     data:data,
                     async:false,
                     success:function (text) {
                         if ("ok" == text){
-                            mini.alert("添加成功","系统提示",function (action) {
+                            mini.alert("修改成功","系统提示",function (action) {
                                 if ("ok" == action){
                                     CloseWindow("ok");
                                 }
                             });
                         } else{
-                            mini.alert("添加失败","系统提示",function (action) {
+                            mini.alert("修改失败","系统提示",function (action) {
                                 if ("ok" == action){
                                     CloseWindow("fail");
                                 }
@@ -68,6 +69,11 @@
                     }
                 });
             }
+        }
+
+        function setData(data) {
+            data = mini.clone(data);
+            form.setData(data);
         }
 
         function CloseWindow(action) {

@@ -13,4 +13,7 @@ import java.util.List;
 public interface IVacateService {
     List getMyVacateList(int applyUserId);
     int addVacate(Vacate vacate);
+    int updateVacate(Vacate vacate);
+    int removeVacate(Vacate vacate);
+    Vacate getVacateByProcessInstId(String processInstId);
 }

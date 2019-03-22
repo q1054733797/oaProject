@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>添加申请单</title>
+    <title>查看请假条</title>
     <script src="../../miniui/scripts/boot.js" type="text/javascript"></script>
     <style type="text/css">
         html, body{
@@ -12,23 +12,38 @@
 </head>
 <body>
     <div id="form">
+        <input name="taskId" class="mini-hidden">
+        <input name="processInstId" class="mini-hidden">
         <table border="0" cellpadding="1" cellspacing="2" style="width:100%;table-layout:fixed;">
+            <tr>
+                <th style="width:120px;text-align: right;">请假人：</th>
+                <td style="width:50%">
+                    <input name="userName" class="mini-textbox" allowInput="false" style="width:80%;" />
+                </td>
+            </tr>
             <tr>
                 <th style="width:120px;text-align: right;">请假开始日期：</th>
                 <td style="width:50%">
-                    <input name="startTime" class="mini-datepicker" allowInput="false" style="width:80%;" required="true"/>
+                    <input name="startTime" class="mini-textbox" allowInput="false" style="width:80%;" />
                 </td>
             </tr>
             <tr>
                 <th style="width:120px;text-align: right;">请假天数：</th>
                 <td style="width:50%">
-                    <input name="dayNum" class="mini-spinner" style="width:80%;" required="true"/>
+                    <input name="dayNum" class="mini-textbox" style="width:80%;" allowInput="false"/>
                 </td>
             </tr>
             <tr>
                 <th style="width:120px;text-align: right;">请假原因：</th>
                 <td style="width:50%">
-                    <input name="reason" class="mini-textarea" style="width:80%;" required="true"/>
+                    <input name="reason" class="mini-textarea" style="width:80%;" allowInput="false"/>
+                </td>
+            </tr>
+            <tr>
+                <th style="width:120px;text-align: right;">审批结果：</th>
+                <td style="width:50%">
+                    <input name="audit_result" class="mini-combobox" style="width:80%;"
+                           idField="id" textField="text" data="[{id:'true',text:'同意'},{id:'false',text:'拒绝'}]" required="true"/>
                 </td>
             </tr>
         </table>
@@ -37,29 +52,47 @@
             <a class="mini-button" iconCls="icon-cancel" onclick="onCancel">取消</a>
         </div>
     </div>
-
     <script>
         mini.parse();
 
         var form = new mini.Form("form");
 
+        function setData(data) {
+            data = mini.clone(data);
+            var vacate = null;
+            $.ajax({
+                url:"/getVacateByProcessInstId",
+                type:"post",
+                data:{processInstId:data.processInstId},
+                async:false,
+                success:function (text) {
+                    if (text != null && text != ""){
+                        vacate = text;
+                    }
+                }
+            });
+            vacate.taskId = data.id;
+            form.setData(vacate);
+        }
+
         function saveData() {
             if (form.validate() == true){
                 var data = form.getData(true,true);
+                alert(mini.encode(data));
                 $.ajax({
-                    url:"/addVacate",
+                    url:"/auditVacate",
                     type:"post",
                     data:data,
                     async:false,
                     success:function (text) {
                         if ("ok" == text){
-                            mini.alert("添加成功","系统提示",function (action) {
+                            mini.alert("审批成功","系统提示",function (action) {
                                 if ("ok" == action){
                                     CloseWindow("ok");
                                 }
                             });
                         } else{
-                            mini.alert("添加失败","系统提示",function (action) {
+                            mini.alert("审批失败","系统提示",function (action) {
                                 if ("ok" == action){
                                     CloseWindow("fail");
                                 }

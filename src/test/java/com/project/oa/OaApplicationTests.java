@@ -6,12 +6,10 @@ import org.activiti.bpmn.model.SequenceFlow;
 import org.activiti.engine.*;
 import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricProcessInstance;
-import org.activiti.engine.impl.bpmn.diagram.ProcessDiagramLayoutFactory;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
-import org.activiti.image.ProcessDiagramGenerator;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,13 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 @RunWith(SpringRunner.class)
@@ -41,12 +35,14 @@ public class OaApplicationTests {
     HistoryService historyService;
     @Autowired
     ProcessEngine processEngine;
+    @Autowired
+    IdentityService identityService;
 
     @Test
     public void deploymentProcessDefinition() {
         Deployment deploy = repositoryService.createDeployment()
                 .name("我的请假流程")
-                .addClasspathResource("processes/myProcess.bpmn")
+                .addClasspathResource("processes/myProcess.xml")
                 .addClasspathResource("processes/myProcess.png")
                 .deploy();
         System.out.println(deploy.getId());
@@ -56,15 +52,16 @@ public class OaApplicationTests {
 
     @Test
     public void startProcessInst(){
-        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionName("请假流程").singleResult();
+        identityService.setAuthenticatedUserId("7");
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionName("请假申请").singleResult();
         System.out.println(processDefinition.getKey());
-        //ProcessInstance myProcess = runtimeService.startProcessInstanceByKey("", "");
+        ProcessInstance myProcess = runtimeService.startProcessInstanceByKey(processDefinition.getKey());
         //System.out.println(myProcess.getProcessDefinitionId());
     }
 
     @Test
     public void queryMyTask(){
-        List<Task> list = taskService.createTaskQuery().taskAssignee("张鸿凯").list();
+        List<Task> list = taskService.createTaskQuery().taskAssignee("$INITIATOR").list();
         for (Task task : list) {
             System.out.println(task.getId());
             System.out.println(task.getName());
@@ -76,7 +73,7 @@ public class OaApplicationTests {
 //        Map map = new HashMap();
 //        map.put("audit_result", "false");
 //        taskService.complete("27502",map);
-        taskService.complete("42505" );
+        taskService.complete("17507" );
     }
 
     @Test
@@ -141,6 +138,11 @@ public class OaApplicationTests {
 
     @Test
     public void deleteProcessDefinition(){
-        repositoryService.deleteDeployment("35001", true);
+        repositoryService.deleteDeployment("27501", true);
+    }
+
+    @Test
+    public void deleteProcessInst(){
+        runtimeService.deleteProcessInstance("32505", "noWhay");
     }
 }
