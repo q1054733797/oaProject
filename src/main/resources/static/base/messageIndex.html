@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>主页</title>
+    <script src="../miniui/scripts/boot.js" type="text/javascript"></script>
+    <link href="../miniui/scripts/miniui/themes/bootstrap/skin.css" rel="stylesheet" type="text/css" />
+    <style>
+        .container {
+            padding: 30px;
+        }
+
+        .container .mini-panel {
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+    </style>
+</head>
+<body>
+    <div class="container" style="height: 100%;">
+        <div class="mini-col-6" style="height: 100%;">
+            <div class="mini-panel mini-panel-warning" title="待办任务" width="auto" style="height: 49%;" showCollapseButton="true">
+                <div class="mini-datagrid" style="width: 100%;height: 93%;" showPager="false">
+                    <div property="columns">
+                        <div align="center" headerAlign="center">任务名称</div>
+                        <div align="center" headerAlign="center">任务发起人</div>
+                        <div align="center" headerAlign="center">任务接收时间</div>
+                        <div align="center" headerAlign="center">所属功能模块</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mini-panel mini-panel-success" title="已办任务" width="auto" style="height: 49%;" showCollapseButton="true">
+                <div class="mini-datagrid" style="width: 100%;height: 93%;" showPager="fasle">
+                    <div property="columns">
+                        <div align="center" headerAlign="center">任务名称</div>
+                        <div align="center" headerAlign="center">任务发起人</div>
+                        <div align="center" headerAlign="center">任务接收时间</div>
+                        <div align="center" headerAlign="center">所属功能模块</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mini-col-6" style="height: 100%;">
+            <div class="mini-panel mini-panel-info" title="系统公告" width="auto" style="height: 31%;" showCollapseButton="true">
+                <div class="mini-datagrid" style="width: 100%;height: 88%;" showPager="fasle">
+                    <div property="columns">
+                        <div align="center" headerAlign="center">标题</div>
+                        <div align="center" headerAlign="center">发布人</div>
+                        <div align="center" headerAlign="center">发布时间</div>
+                        <div align="center" headerAlign="center">结束时间</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mini-panel mini-panel-primary" title="未读通知" width="auto" style="height: 31%;" showCollapseButton="true">
+                <div class="mini-datagrid" style="width: 100%;height: 88%;" showPager="fasle">
+                    <div property="columns">
+                        <div align="center" headerAlign="center">标题</div>
+                        <div align="center" headerAlign="center">内容</div>
+                        <div align="center" headerAlign="center">通知时间</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mini-panel mini-panel-primary" title="已读通知" width="auto" style="height: 31%;" showCollapseButton="true">
+                <div class="mini-datagrid" style="width: 100%;height: 88%;" showPager="fasle">
+                    <div property="columns">
+                        <div align="center" headerAlign="center">标题</div>
+                        <div align="center" headerAlign="center">内容</div>
+                        <div align="center" headerAlign="center">阅读时间</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

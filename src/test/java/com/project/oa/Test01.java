@@ -24,7 +24,7 @@ public class Test01 {
         System.out.println(ProcessEngines.getDefaultProcessEngine());
 //        Deployment deployment = processEngine.getRepositoryService().createDeployment()
 //                .name("我的请假流程")
-//                .addClasspathResource("processes/test.bpmn")
+//                .addClasspathResource("processes/test.bpmn.xml")
 //                .addClasspathResource("processes/test.png")
 //                .deploy();
 //        System.out.println(deployment.getId());

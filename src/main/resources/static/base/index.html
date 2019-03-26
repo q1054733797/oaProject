@@ -37,7 +37,7 @@
             <ul class="dropdown-menu pull-right">
                 <li ><a href="#"><i class="fa fa-eye "></i> 用户信息</a></li>
                 <li><a href="#"><i class="fa fa-pencil-square-o"></i> 修改密码</a></li>
-                <li><a href="#"><i class="fa fa-user"></i> 退出登录</a></li>
+                <li><a style="cursor: pointer;" onclick="signOut()"><i class="fa fa-user"></i> 退出登录</a></li>
             </ul>
         </li>
     </ul>
@@ -53,7 +53,7 @@
     <div class="main">
         <div id="mainTabs" class="mini-tabs main-tabs" activeIndex="0" style="height:100%;" plain="false"
              buttons="#tabsButtons" arrowPosition="side" >
-            <div name="index" iconCls="fa fa-home" title="主页" url="http://www.baidu.com">
+            <div name="index" iconCls="fa fa-home" title="主页" url="/base/messageIndex.html">
                 <!--MiniUI导航框架-->
             </div>
         </div>
@@ -72,6 +72,18 @@
 </html>
 <script>
 	mini.parse();
+	
+	function signOut() {
+        $.ajax({
+           url:"/signOut",
+           type:"post",
+           success:function (text) {
+               if ("ok" == text){
+                   window.location.href = "/base/login.html";
+               }
+           }
+        });
+    }
 	
     function activeTab(item) {
         var tabs = mini.get("mainTabs");

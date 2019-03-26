@@ -4,8 +4,13 @@ import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.bpmn.model.FlowNode;
 import org.activiti.bpmn.model.SequenceFlow;
 import org.activiti.engine.*;
+import org.activiti.engine.form.FormProperty;
+import org.activiti.engine.form.StartFormData;
+import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.history.HistoricTaskInstance;
+import org.activiti.engine.history.HistoricVariableInstance;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
@@ -19,7 +24,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 @RunWith(SpringRunner.class)
@@ -37,6 +44,8 @@ public class OaApplicationTests {
     ProcessEngine processEngine;
     @Autowired
     IdentityService identityService;
+    @Autowired
+    FormService formService;
 
     @Test
     public void deploymentProcessDefinition() {
@@ -52,20 +61,32 @@ public class OaApplicationTests {
 
     @Test
     public void startProcessInst(){
-        identityService.setAuthenticatedUserId("7");
-        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionName("请假申请").singleResult();
-        System.out.println(processDefinition.getKey());
-        ProcessInstance myProcess = runtimeService.startProcessInstanceByKey(processDefinition.getKey());
-        //System.out.println(myProcess.getProcessDefinitionId());
+        //identityService.setAuthenticatedUserId("7");
+        Map map = new HashMap();
+        map.put("applyPage", "申请页面");
+        map.put("auditPage", "审批页面");
+        map.put("applyUserId", "7");
+        map.put("audit_result", "true");
+        ProcessInstance myProcess = runtimeService
+                .startProcessInstanceByKey("test", map);
     }
 
     @Test
     public void queryMyTask(){
-        List<Task> list = taskService.createTaskQuery().taskAssignee("$INITIATOR").list();
-        for (Task task : list) {
-            System.out.println(task.getId());
-            System.out.println(task.getName());
+        Task task = taskService.createTaskQuery()
+                .taskAssignee("7").singleResult();
+        Map<String, Object> variables = runtimeService.getVariables(task.getExecutionId());
+        System.out.println("---------------");
+        for (String key : variables.keySet()) {
+            System.out.println(key + ": " + variables.get(key));
         }
+        System.out.println("---------------");
+        String formKey = task.getFormKey();
+        System.out.println(formKey);
+        //task.setFormKey("applyForm");
+//        Map map = new HashMap();
+//        map.put("audit_result", "false");
+//        taskService.complete(task.getId(), map);
     }
 
     @Test
@@ -144,5 +165,22 @@ public class OaApplicationTests {
     @Test
     public void deleteProcessInst(){
         runtimeService.deleteProcessInstance("32505", "noWhay");
+    }
+
+    @Test
+    public void queryProcessDefinitionList(){
+        List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery().list();
+        for (ProcessDefinition processDefinition : list) {
+            System.out.println(processDefinition.getId());
+            System.out.println(processDefinition.getName());
+            System.out.println(processDefinition.getKey());
+            System.out.println(processDefinition.getResourceName());
+        }
+    }
+
+    @Test
+    public void setStartFormData(){
+        StartFormData startFormData = formService.getStartFormData("test:1:65004");
+
     }
 }
