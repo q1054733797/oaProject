@@ -3,6 +3,7 @@ package com.project.oa.base.controller;
 import com.project.oa.base.bean.User;
 import org.activiti.engine.*;
 import org.activiti.engine.history.HistoricTaskInstance;
+import org.activiti.engine.history.HistoricVariableInstance;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.activiti.engine.task.Task;
@@ -25,6 +26,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -74,6 +76,8 @@ public class ProcessController {
         List<HistoricTaskInstance> list = historyService.createHistoricTaskInstanceQuery()
                 .taskAssignee(user.getId())
                 .finished()
+                .orderByHistoricTaskInstanceEndTime()
+                .desc()
                 .list();
         List<HashMap<String,Object>> maps = new ArrayList<>();
         HashMap<String,Object> map = null;
@@ -82,8 +86,17 @@ public class ProcessController {
             map.put("processInstId",historicTaskInstance.getProcessInstanceId());
             map.put("name", historicTaskInstance.getName());
             map.put("person", user.getName());
-            map.put("startTime", historicTaskInstance.getStartTime());
             map.put("endTime", historicTaskInstance.getEndTime());
+            HistoricVariableInstance infoPageInstance = historyService.createHistoricVariableInstanceQuery()
+                    .processInstanceId(historicTaskInstance.getProcessInstanceId())
+                    .variableName("infoPage")
+                    .singleResult();
+            map.put(infoPageInstance.getVariableName(), infoPageInstance.getValue());
+            HistoricVariableInstance modelNameInstance = historyService.createHistoricVariableInstanceQuery()
+                    .processInstanceId(historicTaskInstance.getProcessInstanceId())
+                    .variableName("modelName")
+                    .singleResult();
+            map.put(modelNameInstance.getVariableName(), modelNameInstance.getValue());
             maps.add(map);
         }
         return maps;

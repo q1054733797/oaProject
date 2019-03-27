@@ -1,5 +1,7 @@
 package com.project.oa.base.bean;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 /**
@@ -15,10 +17,13 @@ public class User {
     private String password;
     private String sex;
     private String status;
+    @JsonFormat(locale = "zh",timezone = "GMT+8",pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Date birthday;
     private String cardType;
     private String cardCode;
+    @JsonFormat(locale = "zh",timezone = "GMT+8",pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Date inDate;
+    @JsonFormat(locale = "zh",timezone = "GMT+8",pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private Date outDate;
     private String phone;
     private String orgId;

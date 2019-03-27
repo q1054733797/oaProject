@@ -73,20 +73,9 @@ public class OaApplicationTests {
 
     @Test
     public void queryMyTask(){
-        Task task = taskService.createTaskQuery()
-                .taskAssignee("7").singleResult();
-        Map<String, Object> variables = runtimeService.getVariables(task.getExecutionId());
-        System.out.println("---------------");
-        for (String key : variables.keySet()) {
-            System.out.println(key + ": " + variables.get(key));
-        }
-        System.out.println("---------------");
-        String formKey = task.getFormKey();
-        System.out.println(formKey);
-        //task.setFormKey("applyForm");
-//        Map map = new HashMap();
-//        map.put("audit_result", "false");
-//        taskService.complete(task.getId(), map);
+        Map<String, Object> variables = runtimeService.getVariables("80001");
+        variables.put("infoPage", "/base/vacateManage/infoVacate.html");
+        runtimeService.setVariables("80001", variables);
     }
 
     @Test

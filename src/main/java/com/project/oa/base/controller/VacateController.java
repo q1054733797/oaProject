@@ -42,8 +42,10 @@ public class VacateController {
         String result = "ok";
         try {
             for (Vacate vacate : vacates) {
-                if(vacate.getProcessStatus().equals("请假单已提交")){
+                if(vacate.getProcessStatus() != null && vacate.getProcessStatus().equals("请假单已提交")){
                     runtimeService.deleteProcessInstance(vacate.getProcessInstId(),"撤销");
+                    vacate.setProcessStatus("申请已撤销");
+                    vacateService.updateVacate(vacate);
                 }
             }
         }catch (Exception e){
@@ -87,13 +89,19 @@ public class VacateController {
         User user = (User)request.getSession().getAttribute("user");
         try {
             String processStatus = null;
+            HashMap map = null;
             for (Vacate vacate : vacates) {
                 processStatus = vacate.getProcessStatus();
                 if(processStatus == null || processStatus.equals("")){
                     vacate.setProcessStatus("请假单已提交");
                     vacate.setApplyTime(new Date());
-                    identityService.setAuthenticatedUserId(user.getId());
-                    ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("vacate");
+                    map = new HashMap();
+                    map.put("applyUserId", user.getId());
+                    map.put("auditRoles", "boss");
+                    map.put("applyPage", "/base/vacateManage/applyVacate.html");
+                    map.put("auditPage", "/base/vacateManage/auditVacate.html");
+                    ProcessInstance processInstance = runtimeService
+                            .startProcessInstanceByKey("vacate",map);
                     vacate.setProcessInstId(processInstance.getId());
                     Task task = taskService.createTaskQuery()
                             .processInstanceId(processInstance.getId())
