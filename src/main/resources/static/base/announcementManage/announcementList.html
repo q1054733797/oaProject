@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>公告列表</title>
+    <script src="../../miniui/scripts/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        html, body{
+            margin:0;padding:0;border:0;width:100%;height:100%;overflow:hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="form">
+        <table border="0" cellpadding="1" cellspacing="2" style="width:100%;table-layout:fixed;">
+            <tr>
+                <th style="width: 80px;text-align: right;">标题:</th>
+                <td>
+                    <input name="title" class="mini-textbox"/>
+                </td>
+                <td>
+                    <a class="mini-button" iconCls="icon-search" onclick="search">查询</a>
+                    <a class="mini-button" iconCls="icon-reload" onclick="reset">重置</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mini-toolbar">
+        <a class="mini-button" iconCls="icon-add" onclick="add">添加公告</a>
+        <a id="edit" class="mini-button" iconCls="icon-edit" onclick="edit">修改公告</a>
+        <a class="mini-button" iconCls="icon-remove" onclick="remove">删除公告</a>
+        <a id="show" class="mini-button" iconCls="icon-node" onclick="show">公告内容</a>
+        <a class="mini-button" iconCls="fa fa-check" onclick="release">发布公告</a>
+    </div>
+    <div class="mini-fit">
+        <div id="grid" class="mini-datagrid" style="width:100%;height:100%;"
+             url="/getAnnouncementByUserId"  idField="id" onselectionchanged="onselectionchanged" multiSelect="true">
+            <div property="columns">
+                <div type="checkColumn" width="50px"></div>
+                <div field="title" align="center" headerAlign="center" >标题</div>
+                <div field="userName" align="center" headerAlign="center" >创建人</div>
+                <div field="startTime" align="center" headerAlign="center" renderer="getTime">开始时间</div>
+                <div field="endTime" align="center" headerAlign="center" renderer="getTime">结束时间</div>
+                <div field="releaseTime" align="center" headerAlign="center" renderer="getTime">发布时间</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mini.parse();
+
+        var form = new mini.Form("form");
+        var grid = mini.get("grid");
+
+        grid.load();
+        
+        function release() {
+            var rows = grid.getSelecteds();
+            if (rows.length > 0){
+                mini.confirm("确定要发布这些公告吗？已发布的无法发布","系统提示",function (action) {
+                    if ("ok" == action){
+                        var data = mini.encode(rows);
+                        $.ajax({
+                            url:"/releaseAnnouncement",
+                            type:"post",
+                            data:data,
+                            contentType:"application/json;charset=utf-8",
+                            async:false,
+                            success:function (text) {
+                                if ("ok" == text){
+                                    mini.alert("发布成功","系统提示",function (action) {
+                                        if ("ok" == action){
+                                            grid.reload();
+                                        }
+                                    });
+                                } else{
+                                    mini.alert("发布失败");
+                                }
+                            }
+                        });
+                    }
+                });
+            } else{
+                mini.alert("请至少选择一条公告");
+            }
+        }
+
+        function show() {
+            var row = grid.getSelected();
+            if (row){
+                mini.open({
+                    url:"/base/announcementManage/showContent.html",
+                    title:"公告内容",
+                    width:1000,
+                    height:500,
+                    onload:function () {
+                        var frame = this.getIFrameEl();
+                        frame.contentWindow.setData(row);
+                    },
+                    ondestroy:function () {
+
+                    }
+                });
+            } else{
+                mini.alert("请选择一条公告！");
+            }
+        }
+
+        function remove() {
+            var rows = grid.getSelecteds();
+            if (rows.length > 0){
+                mini.confirm("确定要删除这些公告吗？已发布的无法删除","系统提示",function (action) {
+                    if ("ok" == action){
+                        var data = mini.encode(rows);
+                        $.ajax({
+                            url:"/deleteAnnouncement",
+                            type:"post",
+                            data:data,
+                            contentType:"application/json;charset=utf-8",
+                            async:false,
+                            success:function (text) {
+                                if ("ok" == text){
+                                    mini.alert("删除成功","系统提示",function (action) {
+                                        if ("ok" == action){
+                                            grid.reload();
+                                        }
+                                    });
+                                } else{
+                                    mini.alert("删除失败");
+                                }
+                            }
+                        });
+                    }
+                });
+            } else{
+                mini.alert("请至少选择一条公告");
+            }
+        }
+
+        function edit() {
+            var row = grid.getSelected();
+            if (row){
+                if (row.releaseTime != null && row.releaseTime != ""){
+                    mini.alert("该公告已发布，无法修改");
+                } else{
+                    mini.open({
+                        url:"/base/announcementManage/updateAnnouncement.html",
+                        title:"修改公告",
+                        width:1000,
+                        height:550,
+                        onload:function () {
+                            var frame = this.getIFrameEl();
+                            frame.contentWindow.setData(row);
+                        },
+                        ondestroy:function (action) {
+                            if ("ok" == action){
+                                grid.reload();
+                            }
+                        }
+                    });
+                }
+            } else{
+                mini.alert("请选择一条公告");
+            }
+        }
+
+        function add() {
+            mini.open({
+                url:"/base/announcementManage/addAnnouncement.html",
+                title:"添加公告",
+                width:1000,
+                height:550,
+                onload:function () {
+
+                },
+                ondestroy:function (action) {
+                    if ("ok" == action){
+                        grid.reload();
+                    }
+                }
+            });
+        }
+
+        function getTime(e) {
+            var date = e.value;
+            return mini.formatDate(date, "yyyy-MM-dd HH:mm:ss");
+        }
+
+        function search() {
+            var data = form.getData(true,true);
+            grid.load(data);
+        }
+
+        function onselectionchanged() {
+            var rows = grid.getSelecteds();
+            if (rows.length > 1){
+                mini.get("edit").disable();
+                mini.get("show").disable();
+            } else{
+                mini.get("edit").enable();
+                mini.get("show").enable();
+            }
+        }
+
+        function reset() {
+            form.reset();
+        }
+    </script>
+</body>
+</html>

@@ -23,62 +23,107 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
+        }
     </style>
 </head>
 <body>
     <div class="container" style="height: 100%;">
         <div class="mini-col-6" style="height: 100%;">
             <div class="mini-panel mini-panel-warning" title="待办任务" width="auto" style="height: 49%;" showCollapseButton="true">
-                <div class="mini-datagrid" style="width: 100%;height: 93%;" showPager="false">
-                    <div property="columns">
-                        <div align="center" headerAlign="center">任务名称</div>
-                        <div align="center" headerAlign="center">任务发起人</div>
-                        <div align="center" headerAlign="center">任务接收时间</div>
-                        <div align="center" headerAlign="center">所属功能模块</div>
+                <div class="mini-fit" style="overflow: hidden">
+                    <div class="mini-datagrid" style="width: 100%;height: 100%;" showPager="false">
+                        <div property="columns">
+                            <div align="center" headerAlign="center">任务名称</div>
+                            <div align="center" headerAlign="center">任务发起人</div>
+                            <div align="center" headerAlign="center">任务接收时间</div>
+                            <div align="center" headerAlign="center">所属功能模块</div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="mini-panel mini-panel-success" title="已办任务" width="auto" style="height: 49%;" showCollapseButton="true">
-                <div class="mini-datagrid" style="width: 100%;height: 93%;" showPager="fasle">
-                    <div property="columns">
-                        <div align="center" headerAlign="center">任务名称</div>
-                        <div align="center" headerAlign="center">任务发起人</div>
-                        <div align="center" headerAlign="center">任务接收时间</div>
-                        <div align="center" headerAlign="center">所属功能模块</div>
+                <div class="mini-fit" style="overflow: hidden">
+                    <div class="mini-datagrid" style="width: 100%;height: 100%;" showPager="fasle">
+                        <div property="columns">
+                            <div align="center" headerAlign="center">任务名称</div>
+                            <div align="center" headerAlign="center">任务发起人</div>
+                            <div align="center" headerAlign="center">任务接收时间</div>
+                            <div align="center" headerAlign="center">所属功能模块</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="mini-col-6" style="height: 100%;">
             <div class="mini-panel mini-panel-info" title="系统公告" width="auto" style="height: 31%;" showCollapseButton="true">
-                <div class="mini-datagrid" style="width: 100%;height: 88%;" showPager="fasle">
-                    <div property="columns">
-                        <div align="center" headerAlign="center">标题</div>
-                        <div align="center" headerAlign="center">发布人</div>
-                        <div align="center" headerAlign="center">发布时间</div>
-                        <div align="center" headerAlign="center">结束时间</div>
+                <div class="mini-fit" style="overflow: hidden">
+                    <div id="announcementGrid" class="mini-datagrid" url="/getReleaseAnnouncement" style="width: 100%;height: 100%;" showPager="fasle">
+                        <div property="columns">
+                            <div field="title" align="center" headerAlign="center" renderer="getTitle">标题</div>
+                            <div field="userName" align="center" headerAlign="center">发布人</div>
+                            <div field="releaseTime" align="center" headerAlign="center" renderer="getTime">发布时间</div>
+                            <div field="endTime" align="center" headerAlign="center" renderer="getTime">结束时间</div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="mini-panel mini-panel-primary" title="未读通知" width="auto" style="height: 31%;" showCollapseButton="true">
-                <div class="mini-datagrid" style="width: 100%;height: 88%;" showPager="fasle">
-                    <div property="columns">
-                        <div align="center" headerAlign="center">标题</div>
-                        <div align="center" headerAlign="center">内容</div>
-                        <div align="center" headerAlign="center">通知时间</div>
+                <div class="mini-fit" style="overflow: hidden">
+                    <div class="mini-datagrid" style="width: 100%;height: 100%;" showPager="fasle">
+                        <div property="columns">
+                            <div align="center" headerAlign="center">标题</div>
+                            <div align="center" headerAlign="center">内容</div>
+                            <div align="center" headerAlign="center">通知时间</div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="mini-panel mini-panel-primary" title="已读通知" width="auto" style="height: 31%;" showCollapseButton="true">
-                <div class="mini-datagrid" style="width: 100%;height: 88%;" showPager="fasle">
-                    <div property="columns">
-                        <div align="center" headerAlign="center">标题</div>
-                        <div align="center" headerAlign="center">内容</div>
-                        <div align="center" headerAlign="center">阅读时间</div>
+                <div class="mini-fit" style="overflow: hidden">
+                    <div class="mini-datagrid" style="width: 100%;height: 100%;" showPager="fasle">
+                        <div property="columns">
+                            <div align="title" headerAlign="center">标题</div>
+                            <div align="center" headerAlign="center">内容</div>
+                            <div align="center" headerAlign="center">阅读时间</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        mini.parse();
+
+        var announcementGrid = mini.get("announcementGrid");
+        announcementGrid.load();
+
+        function getTitle(e) {
+            var title = e.value;
+            return "<a style='cursor: pointer;color: blue' onclick='showContent()'>" + title + "</a>";
+        }
+
+        function getTime(e) {
+            var date = e.value;
+            return mini.formatDate(date, "yyyy-MM-dd mm:HH:ss")
+        }
+
+        function showContent() {
+            var row = announcementGrid.getSelected();
+            mini.open({
+                url:"/base/announcementManage/showContent.html",
+                title:"公告内容",
+                width:1000,
+                height:500,
+                onload:function () {
+                    var frame = this.getIFrameEl();
+                    frame.contentWindow.setData(row);
+                },
+                ondestroy:function () {
+
+                }
+            });
+        }
+    </script>
 </body>
 </html>
