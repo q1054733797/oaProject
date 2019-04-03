@@ -1,7 +1,10 @@
 package com.project.oa.base.controller;
 
 import com.project.oa.base.bean.User;
+import com.project.oa.base.service.IUserService;
+import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.engine.*;
+import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.history.HistoricVariableInstance;
 import org.activiti.engine.repository.ProcessDefinition;
@@ -47,6 +50,31 @@ public class ProcessController {
     private HistoryService historyService;
     @Autowired
     private ProcessEngine processEngine;
+    @Autowired
+    private IUserService userService;
+
+    @RequestMapping("getHistoryImg")
+    public ResponseEntity getHistoryImg(String processInstId) throws IOException {
+        HistoricActivityInstance activityInstance = historyService.createHistoricActivityInstanceQuery()
+                .processInstanceId(processInstId)
+                .orderByHistoricActivityInstanceStartTime()
+                .desc()
+                .list()
+                .get(0);
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(activityInstance.getProcessDefinitionId());
+        List<String> activeIdList = new ArrayList<>();
+        activeIdList.add(activityInstance.getActivityId());
+        InputStream inputStream = processEngine.getProcessEngineConfiguration()
+                .getProcessDiagramGenerator()
+                .generateDiagram(bpmnModel, "png", activeIdList, activeIdList, "宋体", "宋体", "宋体", null, 1.0);
+        File file = new File("F:/a.png");
+        FileUtils.copyInputStreamToFile(inputStream, file);
+        String fileName = new String("流程图片".getBytes("utf-8"),"iso-8859-1" );
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentDispositionFormData("attachment", fileName);
+        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),httpHeaders, HttpStatus.CREATED);
+    }
 
     @RequestMapping("getMyBacklog")
     @ResponseBody
@@ -85,7 +113,6 @@ public class ProcessController {
             map = new HashMap<>();
             map.put("processInstId",historicTaskInstance.getProcessInstanceId());
             map.put("name", historicTaskInstance.getName());
-            map.put("person", user.getName());
             map.put("endTime", historicTaskInstance.getEndTime());
             HistoricVariableInstance infoPageInstance = historyService.createHistoricVariableInstanceQuery()
                     .processInstanceId(historicTaskInstance.getProcessInstanceId())
@@ -97,6 +124,12 @@ public class ProcessController {
                     .variableName("modelName")
                     .singleResult();
             map.put(modelNameInstance.getVariableName(), modelNameInstance.getValue());
+            HistoricVariableInstance applyUserIdInstance = historyService.createHistoricVariableInstanceQuery()
+                    .processInstanceId(historicTaskInstance.getProcessInstanceId())
+                    .variableName("applyUserId")
+                    .singleResult();
+            User applyUser = userService.getUserById(Integer.parseInt(applyUserIdInstance.getValue().toString()));
+            map.put("person", applyUser.getName());
             maps.add(map);
         }
         return maps;

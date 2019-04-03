@@ -168,8 +168,19 @@ public class OaApplicationTests {
     }
 
     @Test
-    public void setStartFormData(){
-        StartFormData startFormData = formService.getStartFormData("test:1:65004");
-
+    public void getHistoryImg() throws IOException {
+        HistoricActivityInstance activityInstance = historyService.createHistoricActivityInstanceQuery()
+                .processInstanceId("80001")
+                .orderByHistoricActivityInstanceStartTime()
+                .desc()
+                .list()
+                .get(0);
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(activityInstance.getProcessDefinitionId());
+        List<String> activeIdList = new ArrayList<>();
+        activeIdList.add(activityInstance.getActivityId());
+        InputStream inputStream = processEngine.getProcessEngineConfiguration()
+                .getProcessDiagramGenerator()
+                .generateDiagram(bpmnModel, "png", activeIdList, activeIdList, "宋体", "宋体", "宋体", null, 1.0);
+        FileUtils.copyInputStreamToFile(inputStream, new File("F:/a.png"));
     }
 }
