@@ -83,15 +83,34 @@ public class ProcessController {
         List<Task> list = taskService.createTaskQuery()
                 .taskAssignee(user.getId())
                 .list();
+        List<Task> tasks = taskService.createTaskQuery()
+                .taskCandidateGroup("boss")
+                .list();
+        list.addAll(tasks);
         List<HashMap<String,Object>> maps = new ArrayList<>();
         HashMap<String,Object> map = null;
+        System.out.println(list.size());
         for (Task task : list) {
             map = new HashMap<>();
-            map.put("id",task.getId());
+            map.put("processInstId",task.getProcessInstanceId());
             map.put("name", task.getName());
-            map.put("person", user.getName());
             map.put("createTime", task.getCreateTime());
-            map.put("processInstId", task.getProcessInstanceId());
+            HistoricVariableInstance auditPageInstance = historyService.createHistoricVariableInstanceQuery()
+                    .processInstanceId(task.getProcessInstanceId())
+                    .variableName("auditPage")
+                    .singleResult();
+            map.put(auditPageInstance.getVariableName(), auditPageInstance.getValue());
+            HistoricVariableInstance modelNameInstance = historyService.createHistoricVariableInstanceQuery()
+                    .processInstanceId(task.getProcessInstanceId())
+                    .variableName("modelName")
+                    .singleResult();
+            map.put(modelNameInstance.getVariableName(), modelNameInstance.getValue());
+            HistoricVariableInstance applyUserIdInstance = historyService.createHistoricVariableInstanceQuery()
+                    .processInstanceId(task.getProcessInstanceId())
+                    .variableName("applyUserId")
+                    .singleResult();
+            User applyUser = userService.getUserById(Integer.parseInt(applyUserIdInstance.getValue().toString()));
+            map.put("person", applyUser.getName());
             maps.add(map);
         }
         return maps;
