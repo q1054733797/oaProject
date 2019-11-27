@@ -75,13 +75,8 @@
 	
 	function signOut() {
         $.ajax({
-           url:"/signOut",
-           type:"post",
-           success:function (text) {
-               if ("ok" == text){
-                   window.location.href = "/base/login.html";
-               }
-           }
+           url:"/logout",
+           type:"post"
         });
     }
 	

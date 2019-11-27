@@ -17,7 +17,7 @@
 
     <script>
         mini.parse();
-
+        $("#processImg").attr("src","/getHistoryImg?processInstId=761cd5fe-c879-11e9-96e9-005056c00008");
         function setData(data) {
             data = mini.clone(data);
             $("#processImg").attr("src","/getHistoryImg?processInstId=" + data.processInstId);

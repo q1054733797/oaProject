@@ -13,7 +13,6 @@ import java.util.List;
  * @Date: Create in 2019/3/7 10:37
  * @Version: 1.0
  */
-@Mapper
 public interface DictMapper {
 
     @Delete("delete from t_dict where id = #{id}")

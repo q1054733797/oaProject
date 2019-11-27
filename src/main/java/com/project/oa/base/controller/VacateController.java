@@ -3,7 +3,6 @@ package com.project.oa.base.controller;
 import com.project.oa.base.bean.User;
 import com.project.oa.base.bean.Vacate;
 import com.project.oa.base.service.IVacateService;
-import org.activiti.engine.IdentityService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.runtime.ProcessInstance;
@@ -31,8 +30,6 @@ public class VacateController {
     private IVacateService vacateService;
     @Autowired
     private RuntimeService runtimeService;
-    @Autowired
-    private IdentityService identityService;
     @Autowired
     private TaskService taskService;
 

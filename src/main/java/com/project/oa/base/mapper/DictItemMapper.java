@@ -2,6 +2,7 @@ package com.project.oa.base.mapper;
 
 import com.project.oa.base.bean.DictItem;
 import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -11,10 +12,10 @@ import java.util.List;
  * @Date: Create in 2019/3/7 11:39
  * @Version: 1.0
  */
-@Mapper
+@Repository
 public interface DictItemMapper {
     @Select("select * from t_dict_item where dict_code = #{dictCode} and code = #{dictItemCode}")
-    DictItem getDictItemByDictCodeAndDictItemCode(@Param("dictCode") String dictCode,@Param("dictItemCode") String dictItemCode);
+    DictItem getDictItemByDictCodeAndDictItemCode(@Param("dictCode") String dictCode, @Param("dictItemCode") String dictItemCode);
 
     @Select("select * from t_dict_item where dict_code = #{dict_code}")
     List<DictItem> getDictItemByDictCode(String dict_code);

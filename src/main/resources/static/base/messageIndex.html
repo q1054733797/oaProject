@@ -31,7 +31,8 @@
         <div class="mini-col-6" style="height: 100%;">
             <div class="mini-panel mini-panel-warning" title="待办任务" width="auto" style="height: 49%;" showCollapseButton="true">
                 <div class="mini-fit" style="overflow: hidden">
-                    <div id="myBacklogGrid" class="mini-datagrid" style="width: 100%;height: 100%;" showPager="false" url="/getMyBacklog">
+                    <!--url="/getMyBacklog"-->
+                    <div id="myBacklogGrid" class="mini-datagrid" style="width: 100%;height: 100%;" showPager="false" >
                         <div property="columns">
                             <div field="name" align="center" headerAlign="center" renderer="getBacklogName">任务名称</div>
                             <div field="person" align="center" headerAlign="center">任务发起人</div>
@@ -43,7 +44,8 @@
             </div>
             <div class="mini-panel mini-panel-success" title="已办任务" width="auto" style="height: 49%;" showCollapseButton="true">
                 <div class="mini-fit" style="overflow: hidden">
-                    <div id="myFinishedGrid" url="/getMyFinished" class="mini-datagrid" style="width: 100%;height: 100%;" showPager="fasle">
+                    <!--url="/getMyFinished"-->
+                    <div id="myFinishedGrid"  class="mini-datagrid" style="width: 100%;height: 100%;" showPager="fasle">
                         <div property="columns">
                             <div field="name" align="center" headerAlign="center" renderer="getFinishedName">任务名称</div>
                             <div field="person" align="center" headerAlign="center">任务发起人</div>

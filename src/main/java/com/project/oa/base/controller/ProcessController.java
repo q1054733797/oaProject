@@ -2,15 +2,19 @@ package com.project.oa.base.controller;
 
 import com.project.oa.base.bean.User;
 import com.project.oa.base.service.IUserService;
+import com.project.oa.base.util.ActivitiUtils;
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.engine.*;
-import org.activiti.engine.history.HistoricActivityInstance;
-import org.activiti.engine.history.HistoricTaskInstance;
-import org.activiti.engine.history.HistoricVariableInstance;
+import org.activiti.engine.history.*;
+import org.activiti.engine.impl.RepositoryServiceImpl;
+import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
 import org.activiti.engine.task.Task;
+import org.activiti.image.ProcessDiagramGenerator;
+import org.activiti.image.impl.DefaultProcessDiagramGenerator;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -55,25 +60,22 @@ public class ProcessController {
 
     @RequestMapping("getHistoryImg")
     public ResponseEntity getHistoryImg(String processInstId) throws IOException {
-        HistoricActivityInstance activityInstance = historyService.createHistoricActivityInstanceQuery()
-                .processInstanceId(processInstId)
-                .orderByHistoricActivityInstanceStartTime()
-                .desc()
-                .list()
-                .get(0);
-        BpmnModel bpmnModel = repositoryService.getBpmnModel(activityInstance.getProcessDefinitionId());
-        List<String> activeIdList = new ArrayList<>();
-        activeIdList.add(activityInstance.getActivityId());
-        InputStream inputStream = processEngine.getProcessEngineConfiguration()
-                .getProcessDiagramGenerator()
-                .generateDiagram(bpmnModel, "png", activeIdList, activeIdList, "宋体", "宋体", "宋体", null, 1.0);
-        File file = new File("F:/a.png");
-        FileUtils.copyInputStreamToFile(inputStream, file);
+        System.out.println(processInstId);
+        HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
+                .processInstanceId(processInstId).singleResult();
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(processInstance.getProcessDefinitionId());
+        HistoricActivityInstanceQuery historyInstanceQuery = historyService.createHistoricActivityInstanceQuery().processInstanceId(processInstId);
+        List<HistoricActivityInstance> historicActivityInstanceList = historyInstanceQuery.orderByHistoricActivityInstanceStartTime().asc().list();
+        List<String> executedActivityIdList = historicActivityInstanceList.stream().map(item -> item.getActivityId()).collect(Collectors.toList());
+        ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity) ((RepositoryServiceImpl) repositoryService).getDeployedProcessDefinition(processInstance.getProcessDefinitionId());
+        List<String> flowIds = ActivitiUtils.getHighLightedFlows(bpmnModel, processDefinition, historicActivityInstanceList);
+        ProcessDiagramGenerator diagramGenerator = new DefaultProcessDiagramGenerator();
+        InputStream inputStream = diagramGenerator.generateDiagram(bpmnModel, executedActivityIdList, flowIds, "宋体", "微软雅黑", "黑体", true, "png");
         String fileName = new String("流程图片".getBytes("utf-8"),"iso-8859-1" );
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentDispositionFormData("attachment", fileName);
         httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),httpHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(IOUtils.toByteArray(inputStream),httpHeaders, HttpStatus.CREATED);
     }
 
     @RequestMapping("getMyBacklog")
@@ -89,7 +91,6 @@ public class ProcessController {
         list.addAll(tasks);
         List<HashMap<String,Object>> maps = new ArrayList<>();
         HashMap<String,Object> map = null;
-        System.out.println(list.size());
         for (Task task : list) {
             map = new HashMap<>();
             map.put("processInstId",task.getProcessInstanceId());

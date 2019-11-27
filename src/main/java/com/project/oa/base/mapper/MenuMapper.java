@@ -14,7 +14,6 @@ import java.util.List;
  * @Date: Create in 2019/3/5 15:29
  * @Version: 1.0
  */
-@Mapper
 public interface MenuMapper {
     @Select("select * from t_menu where parentId = #{menuId} and id in " +
             "(select distinct(menu_id) from t_menu_role a " +
